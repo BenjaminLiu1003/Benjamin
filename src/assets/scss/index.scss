@@ -1,0 +1,255 @@
+#index {
+  color: #d3d6dd;
+  width: 1920px;
+  // width: 100%;
+  height: 1080px;
+  // height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: left top;
+  .bg {
+    width: 100%;
+    height: 100%;
+    padding: 16px 16px 0 16px;
+    // background-image: url('../../assets/pageBg.png');
+    background-size: cover;
+    background-position: center center;
+  }
+
+  .host-body {
+    height: 100%;
+    .dv-dec-10,
+    .dv-dec-10-s {
+      width: 33.3%;
+      height: 5px;
+    }
+    .dv-dec-10-s {
+      transform: rotateY(180deg);
+    }
+    .dv-dec-8 {
+      width: 200px;
+      height: 50px;
+    }
+    .title {
+      position: relative;
+      width: 500px;
+      text-align: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+
+      .title-text {
+        font-size: 24px;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%);
+      }
+
+      .dv-dec-6 {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        width: 250px;
+        height: 8px;
+        transform: translate(-50%);
+      }
+    }
+
+    .commandBox {
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      overflow: hidden;
+    }
+    .section {
+      width: 100%;
+      height: 90%;
+    }
+
+		.center-cen .top-title {
+			width: 100%;
+			// height: 5rem;
+			margin-bottom: .4rem;
+			position: relative;
+		}
+
+		.center-cen .top-title {
+			position: absolute;
+			width: 100%;
+			height: 6rem;
+			// left: .5rem;
+			// top: .5rem;
+			padding-left: 1rem;
+			padding-bottom: 1rem;
+		}
+
+		.center-cen .top-title span {
+			font-size: .8rem;
+			text-align: center;
+			display: block;
+			margin: 0 auto;
+			line-height: 2.2rem;
+			float: left;
+		}
+
+		.center-cen .top-title li {
+			float: left;
+			width: 49%;
+		}
+
+		.center-cen .top-title li p,
+		.center-cen .top-title li span,
+		.center-cen .top-title li b {
+			color: #fff;
+		}
+
+		.center-cen .top-title li b {
+			text-align: center;
+			display: block;
+			margin: .8rem auto 0;
+			float: left;
+		}
+
+		.center-cen .top-title li p {
+			padding: .1rem;
+			margin-left: 1%;
+		}
+
+		.center-cen .top-title p {
+			display: block;
+			margin-block-start: 1em;
+			margin-block-end: 1em;
+			margin-inline-start: 0px;
+			margin-inline-end: 0px;
+		}
+
+		.center-cen .top-title li span {
+			text-align: center;
+			display: inline-block;
+			height: .45rem;
+			margin-left: .3rem;
+			line-height: .4rem;
+			font-size: 3rem;
+			margin-top: .6rem;
+		}
+
+		.datashuji {
+			position: absolute;
+			// margin-bottom: 0.1rem;
+			bottom: 0.5rem;
+			margin-left: 10rem;
+		}
+		.dataright {
+			position: absolute;
+			// margin-bottom: 0.1rem;
+			bottom: 0.5rem;
+			margin-left: 10rem;
+		}
+
+		.datashuji span, .dataright span {
+			font-size: 1rem !important
+		}
+
+    // 第二行
+    .aside-width {
+      width: 50%;
+    }
+    .react-r-s,
+    .react-l-s {
+      // background-color: #0f1325;
+    }
+
+    // 平行四边形
+    .react-right {
+      &.react-l-s {
+        text-align: right;
+        width: 1000px;
+      }
+      font-size: 18px;
+      width: 300px;
+      line-height: 50px;
+      text-align: center;
+      transform: skewX(-45deg);
+
+      .react-after {
+        position: absolute;
+        right: -25px;
+        top: 0;
+        height: 50px;
+        width: 50px;
+        // background-color: #0f1325;
+        transform: skewX(45deg);
+      }
+
+      .text {
+        display: inline-block;
+        transform: skewX(45deg);
+      }
+    }
+
+		// .react-left,ml-3:hover {
+
+		// }
+    .react-left {
+      &.react-l-s {
+        width: 500px;
+        text-align: left;
+      }
+			&:hover, &.active {
+				border-bottom: 4px solid #4b8df8;
+				box-shadow: -10px 0px 15px #034c6a inset, 
+				0px -10px 15px #034c6a inset, 
+				10px 0px 15px #034c6a inset, 
+				0px 10px 15px #034c6a inset;
+				box-sizing: border-box;
+			}
+			
+      font-size: 18px;
+      width: 300px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+			// transform-origin: bottom right;
+      // transform: skewX(45deg);
+      // background-color: #0f1325;
+
+      .react-before {
+        position: absolute;
+        left: -25px;
+        top: 0;
+        height: 50px;
+        width: 50px;
+        background-color: #0f1325;
+        transform: skewX(-45deg);
+				&:hover {
+					background-color: red;
+				}
+      }
+
+      .text {
+        // display: inline-block;
+        // transform: skewX(-45deg);
+      }
+    }
+
+    .body-box {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+
+      //下方区域的布局
+      .content-box {
+        display: grid;
+        grid-template-columns: 2fr 3fr 5fr 3fr 2fr;
+      }
+
+      // 底部数据
+      .bototm-box {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(2, 50%);
+      }
+    }
+  }
+}
