@@ -221,9 +221,6 @@ onBeforeUnmount(() => {
   //   stopQueryStatus()
 });
 
-onMounted(() => {
-  console.log("scrollbar:", logContainer.value)
-})
 const tableRowClassName = ({ row, rowIndex }) => {
   console.log("row....", row.second.fails, row.second.fails > 300);
   if (row.second.fails > 300) {
@@ -294,7 +291,7 @@ if (typeof WebSocket == "undefined") {
   });
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  const socketUrl = "ws://localhost:6919/quoter/all/all";
+  const socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
   const socket = new WebSocket(socketUrl);
   socket.onopen = function () {
     socket.send(
