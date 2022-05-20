@@ -15,7 +15,7 @@ console.log(process.env.VUE_APP_API_URL)
   width: 100vw;
   height: 100vh;
   background-color: #020308;
-  background-image: url('./assets/pageBg.png');
+  // background-image: url('./assets/bg.jpg');
   // overflow: scroll;
 }
 </style>

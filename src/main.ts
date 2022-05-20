@@ -22,6 +22,7 @@ import SvgIcon from "./icons";
 // import { i18n } from "./lang/i18n.js";
 
 const i18n = createI18n({
+  legacy: false,
   messages,
   locale: "en",
   fallbackLocale: "en"
