@@ -35,4 +35,12 @@ app.use(store);
 app.use(router);
 app.use(i18n);
 app.use(ElementPlus, { locale });
+app.directive("scrollBottom", {
+  updated(el) {
+    el.scrollTo({
+      top: el.scrollHeight - el.clientHeight,
+      behavior: "smooth"
+    })
+  }
+})
 app.mount("#app");

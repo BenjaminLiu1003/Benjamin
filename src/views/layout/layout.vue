@@ -7,7 +7,7 @@
       </dv-loading>
       <div v-else
            class="host-body">
-        <navbar class="navBar" />
+        <!-- <navbar class="navBar" /> -->
         <app-main />
       </div>
     </div>

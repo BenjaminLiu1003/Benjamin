@@ -2,13 +2,26 @@
   <div class="d-flex jc-between">
     <div class="d-flex aside-width">
       <!-- <img src="@/assets/img/logo.png" /> -->
-      <span>JCT Monitor</span>
+      <!-- <span>JCT Monitor</span>
       <div class="react-left ml-4"
            v-for="(item, index) in subtitle"
            :key="index"
            :class="currentIndex==index?'active':''"
            @click="switchTab(index)">
         <span class="text">{{ t(item) }}</span>
+      </div> -->
+      <div class="react-left ml-4">
+        Host
+        <el-select v-model="host"
+                   class="m-2"
+                   placeholder="Select"
+                   size="large"
+                   @change="selectHost">
+          <el-option v-for="item in hosts"
+                     :key="item.value"
+                     :label="item.label"
+                     :value="item.value" />
+        </el-select>
       </div>
       <!-- <div class="react-left ml-4" @click="click1">
               <span class="react-before"></span>
@@ -36,81 +49,101 @@
   </div>
 </template>
 
-<script lang="ts">
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+// import { useI18n } from "vue-i18n";
+// import { useRouter } from "vue-router";
 // import { getCurrentInstance } from 'vue'
-import { ref, reactive, onBeforeUnmount, onMounted, watch } from 'vue'
-import { formatTime } from '@/utils/index'
-import { subtitle, WEEK } from '@/constant/index'
-import router from '@/router/index'
+import { ref, reactive, onBeforeUnmount, onMounted, watch, defineEmits } from "vue";
+import { formatTime } from "@/utils/index";
+import { subtitle, WEEK } from "@/constant/index";
+import router from "@/router/index";
+import connect from "../connector.vue"
 
-export default {
-  setup() {
-    const { t } = useI18n()
-    const router = useRouter()
-    // * 当前选中的Tab页
-    let currentIndex = ref(0)
-    // * 时间内容
-    const timeInfo = reactive({
-      setInterval: 0,
-      dateDay: '',
-      dateYear: '',
-      dateWeek: '',
-    })
+const emit = defineEmits([
+  'on-select',
+])
 
-    // 生命周期
-    onBeforeUnmount(() => {
-      clearInterval(timeInfo.setInterval)
-    })
+// const { t } = useI18n();
+// const router = useRouter();
+// * 当前选中的Tab页
+let currentIndex = ref(1);
+// * 时间内容
+const timeInfo = reactive({
+  setInterval: 0,
+  dateDay: "",
+  dateYear: "",
+  dateWeek: "",
+});
 
-    onMounted(() => {
-      formatTimeInfo()
-      handleTime()
-    })
-
-    watch(
-      () => router,
-      (newValue, oldValue) => {
-        console.log(newValue)
-        currentIndex.value = subtitle.indexOf(
-          newValue.currentRoute.value.name.toString()
-        )
-      },
-      { immediate: true }
-    )
-
-    const switchTab = (index) => {
-      currentIndex.value = index
-      // router.push(subtitle[index])
-    }
-
-    // todo 处理时间监听
-    const formatTimeInfo = () => {
-      const date = new Date()
-      timeInfo.dateDay = formatTime(date, 'HH: mm: ss')
-      timeInfo.dateYear = formatTime(date, 'yyyy-MM-dd')
-      timeInfo.dateWeek = WEEK[date.getDay()]
-    }
-
-    const handleTime = () => {
-      timeInfo.setInterval = setInterval(() => {
-        formatTimeInfo()
-      }, 1000)
-    }
-
-    // return
-    return {
-      t,
-      timeInfo,
-      subtitle,
-      currentIndex,
-      switchTab,
-    }
+let host = ref(null)
+const hosts = [
+  {
+    value: "fpis-kbsiml14",
+    label: "fpis-kbsiml14",
   },
+  {
+    value: "fpis-kbsiml35",
+    label: "fpis-kbsiml35",
+  },
+  {
+    value: "fpis-kbsiml66",
+    label: "fpis-kbsiml66",
+  },
+];
+
+// 生命周期
+onBeforeUnmount(() => {
+  clearInterval(timeInfo.setInterval);
+});
+
+watch(
+  () => router,
+  (newValue, oldValue) => {
+    console.log(newValue);
+    currentIndex.value = subtitle.indexOf(
+      newValue.currentRoute.value.name.toString()
+    );
+  },
+  { immediate: true }
+);
+
+const switchTab = (index) => {
+  currentIndex.value = index;
+  // router.push(subtitle[index])
+};
+
+const selectHost = (value) => {
+  console.log(value)
 }
+
+// todo 处理时间监听
+const formatTimeInfo = () => {
+  const date = new Date();
+  timeInfo.dateDay = formatTime(date, "HH: mm: ss");
+  timeInfo.dateYear = formatTime(date, "yyyy-MM-dd");
+  timeInfo.dateWeek = WEEK[date.getDay()];
+};
+
+const handleTime = () => {
+  timeInfo.setInterval = setInterval(() => {
+    formatTimeInfo();
+  }, 1000);
+};
+
+formatTimeInfo();
+handleTime();
+// return
+// return {
+//   t,
+//   timeInfo,
+//   subtitle,
+//   currentIndex,
+//   hosts,
+//   switchTab,
+// };
+
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/index.scss';
+@import "@/assets/scss/index.scss";
 </style>
