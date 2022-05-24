@@ -16,8 +16,8 @@ module.exports = {
 		hotOnly: false, // 是否开启热更新
 		proxy: {
 			"/api": {
-				target: "http://7.151.16.99:6919/v1/",
-        // target: "http://192.168.0.120:6919/v1", //"http://192.168.1.20:80/v1/",
+				// target: "http://7.151.16.99:6919/v1/",
+        target: "http://192.168.0.120:6919/v1", //"http://192.168.1.20:80/v1/",
 				changeOrigin: true,
 				ws: true,
 				pathRewrite: {

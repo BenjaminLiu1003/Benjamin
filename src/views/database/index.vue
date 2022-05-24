@@ -507,16 +507,16 @@ const handleSelect = (key: string, keyPath: string[]) => {
 
   if (keyPath[0] == "all") {
     isGrouping.value = true;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
-    socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+    socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
+    // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
-    socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
+    socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
+    // socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
-    socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
+    socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
+    // socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
   }
 
   createNewSocket();
@@ -762,6 +762,8 @@ const formatSymbols = (symbols, engaged) => {
 
 const parseSocketMsg = (msg) => {
   var response = JSON.parse(msg.data);
+  console.log("response")
+  console.log(response)
   dealResponseCode(
     response,
     function successHandler() {
@@ -802,7 +804,11 @@ const parseSocketMsg = (msg) => {
         for (var i = 0; i < grouped.value.length; ++i) {
           grouped.value[i].opacity = 1;
         }
+        console.log("coming hosts...")
+        console.log(response.data.hosts)
         hosts.value = response.data.hosts;
+        console.log("parsed hosts")
+        console.log(hosts.value)
         actualPrograms.value = response.data.programs;
 
         for (i = 0; i < actualPrograms.value.length; ++i) {
@@ -1097,8 +1103,8 @@ if (typeof WebSocket == "undefined") {
   });
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
-  // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
+  // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+  socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
   socket = new WebSocket(socketUrl);
   socket.onopen = function () {
     console.log("socket opened...");
