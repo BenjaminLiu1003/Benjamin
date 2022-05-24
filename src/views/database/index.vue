@@ -507,16 +507,16 @@ const handleSelect = (key: string, keyPath: string[]) => {
 
   if (keyPath[0] == "all") {
     isGrouping.value = true;
-    socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
-    // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+    // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
+    socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
-    socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
-    // socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
+    // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
+    socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
-    socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
-    // socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
+    // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
+    socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
   }
 
   createNewSocket();
@@ -1103,8 +1103,8 @@ if (typeof WebSocket == "undefined") {
   });
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
-  socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
+  socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+  // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
   socket = new WebSocket(socketUrl);
   socket.onopen = function () {
     console.log("socket opened...");
