@@ -1,7 +1,59 @@
 <template>
-  <div class="d-flex jc-between">
-    <div class="d-flex aside-width">
-      <div class="react-left ml-4">
+  <div>
+    <el-menu :default-active="activeSelection"
+             mode="horizontal"
+             background-color="black"
+             text-color="white"
+             @select="handleSelect">
+
+      <el-menu-item index="all"
+                    style="background-color: rgba(0, 0, 0, 0.1) !important">
+        Collapsed
+      </el-menu-item>
+      <el-sub-menu index="host">
+        <template #title>Host</template>
+        <el-menu-item v-for="(host, index) in hosts"
+                      :key="index"
+                      :index="host.name">
+          {{ host.name }}
+        </el-menu-item>
+      </el-sub-menu>
+
+      <el-sub-menu index="strategy">
+        <template #title>Strategy</template>
+        <el-menu-item v-for="(group, index) in grouped"
+                      :key="index"
+                      :index="group.name">
+          {{ group.name }}
+        </el-menu-item>
+      </el-sub-menu>
+
+      <el-sub-menu index="organize">
+        <template #title>Organize</template>
+        <el-menu-item index="All">
+          Sequential
+        </el-menu-item>
+        <el-menu-item index="Alert Only">
+          Organized
+        </el-menu-item>
+      </el-sub-menu>
+
+      <el-menu-item index="time"
+                    disabled
+                    style="position: absolute;right:0px;">
+        {{ timeInfo.dateYear }} {{ timeInfo.dateWeek }}
+        {{ timeInfo.dateDay }}
+      </el-menu-item>
+    </el-menu>
+    <!-- <span class="text"
+          style="color:red;">
+      {{ timeInfo.dateYear }} {{ timeInfo.dateWeek }}
+      {{ timeInfo.dateDay }}
+    </span> -->
+  </div>
+  <!-- <div class="d-flex jc-between">
+    <div class="d-flex aside-width"> -->
+  <!-- <div class="react-left ml-4">
         Host
         <el-select v-model="host"
                    class="m-2"
@@ -13,8 +65,39 @@
                      :label="item.label"
                      :value="item.value" />
         </el-select>
-      </div>
-      <!-- <div class="react-left ml-4" @click="click1">
+      </div> -->
+
+  <!-- <el-dropdown>
+        <div class="react-left ml-3">
+          <span class="text"
+                style="color:white">
+            Host
+          </span>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu v-for="(host, index) in hosts"
+                            :key="index">
+            <el-dropdown-item>{{ host.name }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
+      <el-dropdown>
+        <div class="react-left ml-3">
+          <span class="text"
+                style="color:white">
+            Strategy
+          </span>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu v-for="(group, index) in grouped"
+                            :key="index">
+            <el-dropdown-item>{{ group.name }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown> -->
+
+  <!-- <div class="react-left ml-4" @click="click1">
               <span class="react-before"></span>
               <span class="text">{{ subtitle[0] }}</span>
             </div>
@@ -27,7 +110,7 @@
             <div class="react-left ml-4">
               <span class="text">{{ subtitle[3] }}</span>
             </div> -->
-    </div>
+  <!-- </div>
     <div class="d-flex aside-width">
       <div class="react-right mr-1 react-l-s">
         <span class="react-after"></span>
@@ -37,7 +120,7 @@
         </span>
       </div>
     </div>
-  </div>
+  </div> -->
   <el-container style="height:100%;">
     <el-main>
       <el-row :gutter="5"
@@ -48,32 +131,75 @@
                 v-for="col in cols"
                 :key="col"
                 style="padding: 0px">
-          <!-- <el-popover v-if="(row - 1) * cols + col - 1 < programs.length"
-                      :width="1000"
-                      trigger="hover"> -->
-          <!-- popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"> -->
-          <!-- <template #reference> -->
-          <div v-if="(row - 1) * cols + col - 1 < programs.length"
-               class="thumbnail-box content"
-               :class="programs[(row - 1) * cols + col - 1].class"
-               @mouseenter="enterBox((row - 1) * cols + col - 1)"
-               @mouseleave="leaveBox">
-            {{ programs[(row - 1) * cols + col - 1].name }}
-          </div>
-          <!-- </template> -->
-          <!-- <template #default> -->
-          <!-- <div>
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.pg }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.host }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.pid }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.fails }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.orders }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.trades }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.currGMV }}
-              {{ programs[(row - 1) * cols + col - 1].pgInfo.maxGMV }}
-            </div> -->
-          <!-- </template> -->
-          <!-- </el-popover> -->
+          <el-popover v-if="(row - 1) * cols + col - 1 < programs.length"
+                      :width="600"
+                      trigger="hover">
+            <!-- popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"> -->
+            <template #reference>
+              <div class="thumbnail-box content"
+                   :class="programs[(row - 1) * cols + col - 1].class"
+                   @mouseenter="enterBox((row - 1) * cols + col - 1)"
+                   @mouseleave="leaveBox">
+                {{ programs[(row - 1) * cols + col - 1].name }}
+              </div>
+            </template>
+            <template #default>
+              <el-descriptions title="Program Details"
+                               direction="vertical"
+                               :column="7"
+                               size="large"
+                               border>
+                <el-descriptions-item label="Program"
+                                      :span="3">
+                  {{ programs[(row - 1) * cols + col - 1].name }}
+                </el-descriptions-item>
+                <el-descriptions-item label="Host"
+                                      :span="2">
+                  {{ programs[(row - 1) * cols + col - 1].host }}
+                </el-descriptions-item>
+                <el-descriptions-item label="Pid">
+                  {{ programs[(row - 1) * cols + col - 1].pid }}
+                </el-descriptions-item>
+                <el-descriptions-item label="Reboots">
+                  <el-tag type="danger">
+                    {{ programs[(row - 1) * cols + col - 1].reboots }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="Orders">
+                  <el-tag type="success">
+                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].orders }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="Trades">
+                  <el-tag type="success">
+                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].trades }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="Fails">
+                  <el-tag type="danger">
+                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].fails }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="CurrGMV / MaxGMV"
+                                      :span="2">
+                  <el-progress :text-inside="true"
+                               :stroke-width="24"
+                               :percentage="programs[(row - 1) * cols + col - 1]['modules'][1].currGMV * 100 / programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV"
+                               :format="formatGMV(programs[(row - 1) * cols + col - 1]['modules'][1].currGMV, programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV)" />
+                </el-descriptions-item>
+                <el-descriptions-item label="Symbols">
+                  <el-tag type="success">
+                    {{ programs[(row - 1) * cols + col - 1]['modules'][2].symbols }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="Engaged">
+                  <el-tag type="success">
+                    {{ programs[(row - 1) * cols + col - 1]['modules'][2].engaged }}
+                  </el-tag>
+                </el-descriptions-item>
+              </el-descriptions>
+            </template>
+          </el-popover>
           <!-- <el-container 
             v-if="(row - 1) * 8 + col - 1 < programs.length" 
             class="thumbnail-box"
@@ -150,8 +276,9 @@
         </el-col>
       </el-row>
     </el-main>
-    <el-aside width="400px">
-      <el-card style="height:33%">
+    <el-aside width="450px">
+      <el-card v-if="0"
+               style="height:0px">
         <div v-if="activePgIdx"
              class="clearfix">
           <span>
@@ -219,12 +346,17 @@
       </el-card>
       <div v-scrollBottom
            class="scroll"
-           style="height:67%">
+           style="height:100%">
         <div v-for="(log, index) in logs"
              :key="index"
              class="scroll-item"
              :style="log.color">
-          [{{ log.ctime }}]: {{ log.text }}
+          <p style="font-size:15px">
+            {{ formatLogTitle(index) }}
+          </p>
+          <p style="font-size:15px">
+            {{ log.text }}
+          </p>
         </div>
       </div>
       <!-- <el-scrollbar ref="logContainer"
@@ -270,7 +402,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  reactive,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 // import EntryDrawer from './components/entrydrawer.vue'
 import http from "@/utils/network/http";
 import { ElMessage } from "_element-plus@1.2.0-beta.6@element-plus/es";
@@ -306,27 +445,97 @@ const handleTime = () => {
 formatTimeInfo();
 handleTime();
 
-let host = ref(null)
-const hosts = [
-  {
-    value: "fpis_kbsiml14",
-    label: "fpis_kbsiml14",
-  },
-  {
-    value: "fpis_kbsiml35",
-    label: "fpis_kbsiml35",
-  },
-  {
-    value: "fpis_kbsiml66",
-    label: "fpis_kbsiml66",
-  },
-];
+let host = ref(null);
+// const hosts = [
+//   {
+//     value: "fpis_kbsiml14",
+//     label: "fpis_kbsiml14",
+//   },
+//   {
+//     value: "fpis_kbsiml35",
+//     label: "fpis_kbsiml35",
+//   },
+//   {
+//     value: "fpis_kbsiml66",
+//     label: "fpis_kbsiml66",
+//   },
+// ];
 
 let grouped = ref([]);
-let programs = ref([]);
+let hosts = ref([]);
+
+let onlyShowAlert = ref(false);
+let actualPrograms = ref([]); // the stored whole programs
+let programs = ref([]); // for show
+
 let logs = ref([]);
 const activeGroupIdx = ref(null);
 let activePgIdx = ref(null);
+const activeSelection = ref("all");
+let isGrouping = ref(true);
+
+const createNewSocket = () => {
+  socket.close();
+
+  socket = new WebSocket(socketUrl);
+
+  socket.onopen = function () {
+    console.log("socket opened...");
+  };
+
+  socket.onmessage = parseSocketMsg;
+
+  socket.onerror = function () {
+    ElMessage({
+      message: "Websocket error",
+      grouping: true,
+      type: "error",
+    });
+  };
+
+  socket.onclose = function () {
+    console.log("Websocket closed......");
+  };
+};
+
+const handleSelect = (key: string, keyPath: string[]) => {
+  if (keyPath[0] == "organize") {
+    onlyShowAlert.value = key == "Alert Only";
+    isGrouping.value = false;
+    return;
+  }
+
+  if (keyPath[0] == "all") {
+    isGrouping.value = true;
+    // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
+    socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+  } else if (keyPath[0] == "host") {
+    isGrouping.value = false;
+    // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
+    socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
+  } else if (keyPath[0] == "strategy") {
+    isGrouping.value = false;
+    // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
+    socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
+  }
+
+  createNewSocket();
+};
+
+const formatLogTitle = (index) => {
+  for (var program of actualPrograms.value) {
+    if (logs.value[index].id === program.id) {
+      return (
+        "[" +
+        logs.value[index].ctime +
+        "]:" +
+        program.name +
+        "@" +
+        hosts.value[program.host - 1].name
+      );
+    }
+  }
+};
 
 const setOpacity = (index, isOpacity) => {
   if (isOpacity) {
@@ -338,13 +547,117 @@ const setOpacity = (index, isOpacity) => {
     );
   }
 };
+
+watch(onlyShowAlert, (newValue, oldValue) => {
+  if (newValue) {
+    programs.value = [];
+    var normal = [];
+    var abnormal = [];
+    for (var program of actualPrograms.value) {
+      if (program["class"].indexOf("alert") !== -1) {
+        abnormal.push(program);
+      } else {
+        normal.push(program);
+      }
+    }
+    programs.value = normal.concat(abnormal);
+  } else {
+    programs.value = actualPrograms.value;
+  }
+  rows.value = Math.ceil(programs.value.length / cols.value);
+});
+
 watch(activeGroupIdx, (newValue, oldValue) => {
   console.log(newValue, "<----", oldValue);
   if (newValue == null) {
-    for (var program of programs.value) {
+    if (isGrouping.value) {
+      programs.value = [];
+      for (var group of grouped.value) {
+        var newProgram = null;
+        for (var program of actualPrograms.value) {
+          if (program.group == group.id) {
+            if (program["class"].indexOf("alert") !== -1) {
+              newProgram = {
+                group: group.id,
+                name: group.name,
+                class: "alert",
+                modules: [
+                  { name: "component1", orders: 0, trades: 0, fails: 0 },
+                  { name: "component2", currGMV: 0, maxGMV: 1 },
+                  { name: "component3", symbols: 0, engaged: 0 },
+                ],
+              };
+            } else {
+              newProgram = {
+                group: group.id,
+                name: group.name,
+                class: "normal",
+                modules: [
+                  { name: "component1", orders: 0, trades: 0, fails: 0 },
+                  { name: "component2", currGMV: 0, maxGMV: 1 },
+                  { name: "component3", symbols: 0, engaged: 0 },
+                ],
+              };
+            }
+          }
+        }
+        if (newProgram !== null) {
+          programs.value.push(newProgram);
+        }
+      }
+    }
+
+    for (program of programs.value) {
       program.class = program.class.replace(/opacity/g, "");
     }
   } else {
+    if (isGrouping.value) {
+      programs.value = [];
+      for (group of grouped.value) {
+        if (group.id === newValue) {
+          for (program of actualPrograms.value) {
+            if (program.group === newValue) {
+              programs.value.push(program);
+            }
+          }
+        } else {
+          newProgram = null;
+          for (program of actualPrograms.value) {
+            if (program.group == group.id) {
+              if (program["class"].indexOf("alert") !== -1) {
+                newProgram = {
+                  group: group.id,
+                  name: group.name,
+                  class: "alert",
+                  modules: [
+                    { name: "component1", orders: 0, trades: 0, fails: 0 },
+                    { name: "component2", currGMV: 0, maxGMV: 1 },
+                    { name: "component3", symbols: 0, engaged: 0 },
+                  ],
+                };
+                break;
+              } else {
+                newProgram = {
+                  group: group.id,
+                  name: group.name,
+                  class: "normal",
+                  modules: [
+                    { name: "component1", orders: 0, trades: 0, fails: 0 },
+                    { name: "component2", currGMV: 0, maxGMV: 1 },
+                    { name: "component3", symbols: 0, engaged: 0 },
+                  ],
+                };
+              }
+            } else if (newProgram !== null) {
+              break;
+            }
+          }
+          if (newProgram !== null) {
+            programs.value.push(newProgram);
+          }
+        }
+      }
+    }
     for (program of programs.value) {
       if (program.group != newValue) {
         program.class = program.class + " opacity";
@@ -383,6 +696,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
 });
 const enterBox = (index) => {
   activePgIdx.value = index;
+  console.log("programs:", programs.value);
   activeGroupIdx.value = programs.value[index].group;
   // console.log("enter...");
   // for ( var i = 0; i < programs.value.length; ++i) {
@@ -397,8 +711,8 @@ const enterBox = (index) => {
 
 const leaveBox = () => {
   console.log("leave...");
-  activePgIdx.value = null;
-  activeGroupIdx.value = null;
+  // activePgIdx.value = null;
+  // activeGroupIdx.value = null;
   // for ( var i = 0; i < programs.value.length; ++i) {
   //   programs.value[i].class.replace(/opacity/g, "")
   // }
@@ -436,7 +750,7 @@ const tableRowClassName = ({ row, rowIndex }) => {
 
 const formatGMV = (currGMV, maxGMV) => {
   return () => {
-    return "Curr:" + currGMV + ",Max:" + maxGMV;
+    return "Curr:" + currGMV; // + ",Max:" + maxGMV;
   };
 };
 
@@ -446,41 +760,31 @@ const formatSymbols = (symbols, engaged) => {
   };
 };
 
-const selectHost = (host) => {
-  socket.close()
-  programs.value = []
-  grouped.value = []
-  rows.value = 0
+const parseSocketMsg = (msg) => {
+  var response = JSON.parse(msg.data);
+  dealResponseCode(
+    response,
+    function successHandler() {
+      // first time: get the whole programs
+      if (response.data.programs !== undefined) {
+        onlyShowAlert.value = false;
+        actualPrograms.value = [];
+        programs.value = [];
+        grouped.value = [];
+        hosts.value = [];
+        logs.value = [];
+        rows.value = 0;
+        activePgIdx.value = null;
+        activeGroupIdx.value = null;
 
-  // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + host
-  socketUrl = "ws://7.151.16.99:6919/quoter/host/" + host
-  socket = new WebSocket(socketUrl)
-  socket.onopen = function () {
-    console.log("socket opened...");
-    // socket.send(
-    //   JSON.stringify({
-    //     username: "bliu",
-    //     msg: "test websocket",
-    //   })
-    // );
-  };
-  socket.onmessage = function (msg) {
-    var response = JSON.parse(msg.data);
-    console.log("message....", response);
-    dealResponseCode(
-      response,
-      function successHandler() {
         if (response.data.logs !== undefined) {
           for (i = 0; i < response.data.logs.length; ++i) {
             if (response.data.logs[i].level == "0") {
-              // success
-              var color = "color: #67c23a";
+              var color = "color: #67c23a"; // success
             } else if (response.data.logs[i].level == "1") {
-              // warning
-              color = "color: #e6a23c";
+              color = "color: #e6a23c"; // warning
             } else if (response.data.logs[i].level == "2") {
-              // alert
-              color = "color: #f56c6c";
+              color = "color: #f20c00"; // alert #f56c6c
             } else {
               color = "color: #909399";
             }
@@ -494,103 +798,241 @@ const selectHost = (host) => {
           }
         }
 
-        // first time: get the whole programs
-        if (programs.value.length === 0) {
-          grouped.value = response.data.groups;
-          for (var i = 0; i < grouped.value.length; ++i) {
-            grouped.value[i].opacity = 1;
-          }
+        grouped.value = response.data.groups;
+        for (var i = 0; i < grouped.value.length; ++i) {
+          grouped.value[i].opacity = 1;
+        }
+        hosts.value = response.data.hosts;
+        actualPrograms.value = response.data.programs;
 
-          programs.value = response.data.programs;
-          rows.value = Math.ceil(programs.value.length / cols.value);
-
-          for (i = 0; i < programs.value.length; ++i) {
-            if (programs.value[i].modules == undefined) {
-              programs.value[i].modules = [];
-              programs.value[i]["class"] = "dead blink-border";
-            } else if (
-              programs.value[i].modules[0].fails >
-              programs.value[i].modules[0].trades
-            ) {
-              programs.value[i]["class"] = "alert";
-              // } else if (programs.value[i].modules[2].symbols > 0) {
-              //   programs.value[i]["class"] = "warning";
-            } else {
-              programs.value[i]["class"] = "normal";
-            }
-          }
-        } else {
-          var program = response.data.program;
-          programs.value[program.id].group = program.group;
-          programs.value[program.id].host = program.host;
-          programs.value[program.id].pid = program.pid;
-          for (var newModule of program["modules"]) {
-            for (var oldModule in programs.value[program.id]["modules"]) {
-              if (newModule["name"] == oldModule["name"]) {
-                oldModule = newModule;
-              }
-            }
-            if (newModule["name"] == "log") {
-              if (newModule["level"] == "0") {
-                // success
-                color = "color: #67c23a";
-              } else if (newModule["level"] == "1") {
-                // warning
-                color = "color: #e6a23c";
-              } else if (newModule["level"] == "2") {
-                // alert
-                color = "color: #f56c6c";
-              } else {
-                color = "color: #909399";
-              }
-              logs.value.push({
-                id: program.id,
-                text: newModule["text"],
-                level: newModule["level"],
-                color: color,
-                ctime: newModule["ctime"],
-              });
-            }
-          }
-          if (logs.value.length > 20) {
-            logs.value = logs.value.slice(logs.value.length - 20);
-          }
-
-          programs.value[program.id]["class"] = programs.value[program.id][
-            "class"
-          ].replace(/alert/g, "normal");
-          for (newModule in programs.value[program.id].modules) {
-            if (
-              newModule["name"] == "component2" &&
-              newModule["fails"] > newModule["trades"]
-            ) {
-              programs.value[program.id]["class"] = "alert";
-            }
+        for (i = 0; i < actualPrograms.value.length; ++i) {
+          if (actualPrograms.value[i].modules == undefined) {
+            actualPrograms.value[i].modules = [];
+            actualPrograms.value[i]["class"] = "dead blink-border";
+          } else if (
+            actualPrograms.value[i].modules[0].fails >
+            actualPrograms.value[i].modules[0].trades
+          ) {
+            actualPrograms.value[i]["class"] = "alert";
+          } else {
+            actualPrograms.value[i]["class"] = "normal";
           }
         }
 
-        // console.log(logContainer.value)
-        // logContainer.value.scrollTop = 0
-      },
-      function failHandler() {
-        ElMessage.error("failure" + ":" + response.msg);
-      },
-      () => {
-        // nothing
+        if (isGrouping.value) {
+          for (var group of grouped.value) {
+            var newProgram = null;
+            for (var program of actualPrograms.value) {
+              if (program.group == group.id) {
+                if (program["class"].indexOf("alert") !== -1) {
+                  newProgram = {
+                    group: group.id,
+                    name: group.name,
+                    class: "alert",
+                    modules: [
+                      { name: "component1", orders: 0, trades: 0, fails: 0 },
+                      { name: "component2", currGMV: 0, maxGMV: 1 },
+                      { name: "component3", symbols: 0, engaged: 0 },
+                    ],
+                  };
+                } else {
+                  newProgram = {
+                    group: group.id,
+                    name: group.name,
+                    class: "normal",
+                    modules: [
+                      { name: "component1", orders: 0, trades: 0, fails: 0 },
+                      { name: "component2", currGMV: 0, maxGMV: 1 },
+                      { name: "component3", symbols: 0, engaged: 0 },
+                    ],
+                  };
+                }
+              }
+            }
+            if (newProgram !== null) {
+              programs.value.push(newProgram);
+            }
+          }
+        } else {
+          programs.value = actualPrograms.value;
+        }
+
+        console.log("Programs: ", programs.value);
+        console.log("actualPrograms: ", actualPrograms.value);
+      } else {
+        program = response.data.program;
+        for (var idx = 0; idx < actualPrograms.value.length; ++idx) {
+          if (actualPrograms.value[idx].id == program.id) {
+            break;
+          }
+        }
+
+        actualPrograms.value[idx].group = program.group;
+        actualPrograms.value[idx].host = program.host;
+        actualPrograms.value[idx].pid = program.pid;
+        actualPrograms.value[idx].reboots = program.reboots;
+
+        actualPrograms.value[idx]["class"] = actualPrograms.value[idx][
+          "class"
+        ].replace(/alert/g, "normal");
+        for (var newModule of program["modules"]) {
+          if (
+            newModule["name"] == "component2" &&
+            newModule["fails"] > newModule["trades"]
+          ) {
+            actualPrograms.value[idx]["class"] = "alert";
+          }
+        }
+
+        for (newModule of program["modules"]) {
+          for (var oldModule of actualPrograms.value[idx]["modules"]) {
+            if (newModule["name"] == oldModule["name"]) {
+              oldModule = newModule;
+            }
+          }
+          if (newModule["name"] == "log") {
+            if (newModule["level"] == "0") {
+              color = "color: #67c23a"; // success
+            } else if (newModule["level"] == "1") {
+              color = "color: #e6a23c"; // warning
+            } else if (newModule["level"] == "2") {
+              color = "color: #f20c00"; // alert #f56c6c
+            } else {
+              color = "color: #909399";
+            }
+            logs.value.push({
+              id: program.id,
+              text: newModule["text"],
+              level: newModule["level"],
+              color: color,
+              ctime: newModule["ctime"],
+            });
+          }
+        }
+        if (logs.value.length > 40) {
+          logs.value = logs.value.slice(logs.value.length - 40);
+        }
+
+        programs.value = [];
+        if (isGrouping.value) {
+          if (activeGroupIdx.value !== null) {
+            for (group of grouped.value) {
+              if (group.id === activeGroupIdx.value) {
+                for (program of actualPrograms.value) {
+                  if (program.group === activeGroupIdx.value) {
+                    programs.value.push(program);
+                  }
+                }
+              } else {
+                newProgram = null;
+                for (program of actualPrograms.value) {
+                  if (program.group == group.id) {
+                    if (program["class"].indexOf("alert") !== -1) {
+                      newProgram = {
+                        group: group.id,
+                        name: group.name,
+                        class: "alert",
+                        modules: [
+                          {
+                            name: "component1",
+                            orders: 0,
+                            trades: 0,
+                            fails: 0,
+                          },
+                          { name: "component2", currGMV: 0, maxGMV: 1 },
+                          { name: "component3", symbols: 0, engaged: 0 },
+                        ],
+                      };
+                      break;
+                    } else {
+                      newProgram = {
+                        group: group.id,
+                        name: group.name,
+                        class: "normal",
+                        modules: [
+                          {
+                            name: "component1",
+                            orders: 0,
+                            trades: 0,
+                            fails: 0,
+                          },
+                          { name: "component2", currGMV: 0, maxGMV: 1 },
+                          { name: "component3", symbols: 0, engaged: 0 },
+                        ],
+                      };
+                    }
+                  } else if (newProgram !== null) {
+                    break;
+                  }
+                }
+                if (newProgram !== null) {
+                  programs.value.push(newProgram);
+                }
+              }
+            }
+          } else {
+            for (group of grouped.value) {
+              newProgram = null;
+              for (program of actualPrograms.value) {
+                if (program.group == group.id) {
+                  if (program["class"].indexOf("alert") !== -1) {
+                    newProgram = {
+                      group: group.id,
+                      name: group.name,
+                      class: "alert",
+                      modules: [
+                        { name: "component1", orders: 0, trades: 0, fails: 0 },
+                        { name: "component2", currGMV: 0, maxGMV: 1 },
+                        { name: "component3", symbols: 0, engaged: 0 },
+                      ],
+                    };
+                    break;
+                  } else {
+                    newProgram = {
+                      group: group.id,
+                      name: group.name,
+                      class: "normal",
+                      modules: [
+                        { name: "component1", orders: 0, trades: 0, fails: 0 },
+                        { name: "component2", currGMV: 0, maxGMV: 1 },
+                        { name: "component3", symbols: 0, engaged: 0 },
+                      ],
+                    };
+                  }
+                } else if (newProgram !== null) {
+                  break;
+                }
+              }
+              if (newProgram !== null) {
+                programs.value.push(newProgram);
+              }
+            }
+          }
+        } else if (onlyShowAlert.value) {
+          var normal = [];
+          var abnormal = [];
+          for (program of actualPrograms.value) {
+            if (program["class"].indexOf("alert") !== -1) {
+              abnormal.push(program);
+            } else {
+              normal.push(program);
+            }
+          }
+          programs.value = normal.concat(abnormal);
+        } else {
+          programs.value = actualPrograms.value;
+        }
       }
-    );
-  };
-  socket.onerror = function () {
-    ElMessage({
-      message: "Websocket error",
-      grouping: true,
-      type: "error",
-    });
-  };
-  socket.onclose = function () {
-    console.log("Websocket closed......");
-  };
-}
+      rows.value = Math.ceil(programs.value.length / cols.value);
+    },
+    function failHandler() {
+      ElMessage.error("failure" + ":" + response.msg);
+    },
+    () => {
+      // nothing
+    }
+  );
+};
 
 // const startQueryStatus = () => {
 //   console.log("query...");
@@ -644,8 +1086,8 @@ const showDrawer = () => {
 
 // startQueryStatus()
 
-let socket
-let socketUrl
+let socket;
+let socketUrl;
 
 if (typeof WebSocket == "undefined") {
   ElMessage({
@@ -655,7 +1097,7 @@ if (typeof WebSocket == "undefined") {
   });
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  const socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+  socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
   // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
   socket = new WebSocket(socketUrl);
   socket.onopen = function () {
@@ -667,122 +1109,7 @@ if (typeof WebSocket == "undefined") {
     //   })
     // );
   };
-  socket.onmessage = function (msg) {
-    var response = JSON.parse(msg.data);
-    console.log("message....", response);
-    dealResponseCode(
-      response,
-      function successHandler() {
-        if (response.data.logs !== undefined) {
-          for (i = 0; i < response.data.logs.length; ++i) {
-            if (response.data.logs[i].level == "0") {
-              // success
-              var color = "color: #67c23a";
-            } else if (response.data.logs[i].level == "1") {
-              // warning
-              color = "color: #e6a23c";
-            } else if (response.data.logs[i].level == "2") {
-              // alert
-              color = "color: #f56c6c";
-            } else {
-              color = "color: #909399";
-            }
-            logs.value.push({
-              id: response.data.logs[i].program,
-              text: response.data.logs[i].text,
-              level: response.data.logs[i].level,
-              color: color,
-              ctime: response.data.logs[i].ctime,
-            });
-          }
-        }
-
-        // first time: get the whole programs
-        if (programs.value.length === 0) {
-          grouped.value = response.data.groups;
-          for (var i = 0; i < grouped.value.length; ++i) {
-            grouped.value[i].opacity = 1;
-          }
-
-          programs.value = response.data.programs;
-          rows.value = Math.ceil(programs.value.length / cols.value);
-
-          for (i = 0; i < programs.value.length; ++i) {
-            if (programs.value[i].modules == undefined) {
-              programs.value[i].modules = [];
-              programs.value[i]["class"] = "dead blink-border";
-            } else if (
-              programs.value[i].modules[0].fails >
-              programs.value[i].modules[0].trades
-            ) {
-              programs.value[i]["class"] = "alert";
-              // } else if (programs.value[i].modules[2].symbols > 0) {
-              //   programs.value[i]["class"] = "warning";
-            } else {
-              programs.value[i]["class"] = "normal";
-            }
-          }
-        } else {
-          var program = response.data.program;
-          programs.value[program.id].group = program.group;
-          programs.value[program.id].host = program.host;
-          programs.value[program.id].pid = program.pid;
-          for (var newModule of program["modules"]) {
-            for (var oldModule in programs.value[program.id]["modules"]) {
-              if (newModule["name"] == oldModule["name"]) {
-                oldModule = newModule;
-              }
-            }
-            if (newModule["name"] == "log") {
-              if (newModule["level"] == "0") {
-                // success
-                color = "color: #67c23a";
-              } else if (newModule["level"] == "1") {
-                // warning
-                color = "color: #e6a23c";
-              } else if (newModule["level"] == "2") {
-                // alert
-                color = "color: #f56c6c";
-              } else {
-                color = "color: #909399";
-              }
-              logs.value.push({
-                id: program.id,
-                text: newModule["text"],
-                level: newModule["level"],
-                color: color,
-                ctime: newModule["ctime"],
-              });
-            }
-          }
-          if (logs.value.length > 20) {
-            logs.value = logs.value.slice(logs.value.length - 20);
-          }
-
-          programs.value[program.id]["class"] = programs.value[program.id][
-            "class"
-          ].replace(/alert/g, "normal");
-          for (newModule in programs.value[program.id].modules) {
-            if (
-              newModule["name"] == "component2" &&
-              newModule["fails"] > newModule["trades"]
-            ) {
-              programs.value[program.id]["class"] = "alert";
-            }
-          }
-        }
-
-        // console.log(logContainer.value)
-        // logContainer.value.scrollTop = 0
-      },
-      function failHandler() {
-        ElMessage.error("failure" + ":" + response.msg);
-      },
-      () => {
-        // nothing
-      }
-    );
-  };
+  socket.onmessage = parseSocketMsg;
   socket.onerror = function () {
     ElMessage({
       message: "Websocket error",
@@ -797,6 +1124,8 @@ if (typeof WebSocket == "undefined") {
 </script>
 
 <style lang="scss">
+@import "@/assets/scss/index.scss";
+
 .el-table .warning-row {
   // --el-table-tr-bg-color: var(--el-color-warning-light-9);
   background-color: red;
@@ -823,7 +1152,8 @@ if (typeof WebSocket == "undefined") {
   overflow: auto;
   .scroll-item {
     // height: 200px;
-    margin-bottom: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
   }
 }
 
@@ -836,7 +1166,7 @@ if (typeof WebSocket == "undefined") {
   //   }
   width: 100%;
   max-height: 26px;
-  font-size: 10px;
+  font-size: 8px;
   border-radius: 5px;
 
   &.content {
@@ -856,7 +1186,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.normal {
-    background-color: #42b983;
+    background-color: #006400; //#42b983;
   }
 
   &.success {
@@ -868,7 +1198,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.alert {
-    background-color: #f56c6c;
+    background-color: #f20c00; //#f56c6c;
   }
 
   &.dead {
