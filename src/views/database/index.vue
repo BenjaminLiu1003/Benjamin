@@ -472,15 +472,19 @@ let logs = ref([]);
 const activeGroupIdx = ref(null);
 let activePgIdx = ref(null);
 const activeSelection = ref("all");
-let isGrouping = ref(true);
+let isGrouping = ref(false);
 
+let socket, socketUrl;
 const createNewSocket = () => {
-  socket.close();
+  if (socket !== undefined) {
+    socket.close();
+  }
 
   socket = new WebSocket(socketUrl);
 
   socket.onopen = function () {
-    console.log("socket opened...");
+    // console.log("socket opened...");
+    // socket.send(JSON.stringify({username: "bliu",msg: "test websocket"}));
   };
 
   socket.onmessage = parseSocketMsg;
@@ -494,7 +498,7 @@ const createNewSocket = () => {
   };
 
   socket.onclose = function () {
-    console.log("Websocket closed......");
+    // console.log("Websocket closed......");
   };
 };
 
@@ -508,15 +512,18 @@ const handleSelect = (key: string, keyPath: string[]) => {
   if (keyPath[0] == "all") {
     isGrouping.value = true;
     // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
-    socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+    // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all";
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
     // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
-    socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
+    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/host/" + key;
+    // socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
     // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
-    socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
+    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "/quoter/strategy/" + key;
+    // socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
   }
 
   createNewSocket();
@@ -711,8 +718,8 @@ const enterBox = (index) => {
 
 const leaveBox = () => {
   console.log("leave...");
-  // activePgIdx.value = null;
-  // activeGroupIdx.value = null;
+  activePgIdx.value = null;
+  activeGroupIdx.value = null;
   // for ( var i = 0; i < programs.value.length; ++i) {
   //   programs.value[i].class.replace(/opacity/g, "")
   // }
@@ -762,8 +769,8 @@ const formatSymbols = (symbols, engaged) => {
 
 const parseSocketMsg = (msg) => {
   var response = JSON.parse(msg.data);
-  console.log("response")
-  console.log(response)
+  console.log("response");
+  console.log(response);
   dealResponseCode(
     response,
     function successHandler() {
@@ -786,7 +793,7 @@ const parseSocketMsg = (msg) => {
             } else if (response.data.logs[i].level == "1") {
               color = "color: #e6a23c"; // warning
             } else if (response.data.logs[i].level == "2") {
-              color = "color: #f20c00"; // alert #f56c6c
+              color = "color: #ff1602"; // alert #f56c6c #f20c00
             } else {
               color = "color: #909399";
             }
@@ -804,11 +811,11 @@ const parseSocketMsg = (msg) => {
         for (var i = 0; i < grouped.value.length; ++i) {
           grouped.value[i].opacity = 1;
         }
-        console.log("coming hosts...")
-        console.log(response.data.hosts)
+        console.log("coming hosts...");
+        console.log(response.data.hosts);
         hosts.value = response.data.hosts;
-        console.log("parsed hosts")
-        console.log(hosts.value)
+        console.log("parsed hosts");
+        console.log(hosts.value);
         actualPrograms.value = response.data.programs;
 
         for (i = 0; i < actualPrograms.value.length; ++i) {
@@ -902,7 +909,7 @@ const parseSocketMsg = (msg) => {
             } else if (newModule["level"] == "1") {
               color = "color: #e6a23c"; // warning
             } else if (newModule["level"] == "2") {
-              color = "color: #f20c00"; // alert #f56c6c
+              color = "color: #ff1602"; // alert #f56c6c #f20c00
             } else {
               color = "color: #909399";
             }
@@ -1092,9 +1099,6 @@ const showDrawer = () => {
 
 // startQueryStatus()
 
-let socket;
-let socketUrl;
-
 if (typeof WebSocket == "undefined") {
   ElMessage({
     message: "Websocket is unsupported, please use Chrome",
@@ -1103,29 +1107,9 @@ if (typeof WebSocket == "undefined") {
   });
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
-  // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
-  socket = new WebSocket(socketUrl);
-  socket.onopen = function () {
-    console.log("socket opened...");
-    // socket.send(
-    //   JSON.stringify({
-    //     username: "bliu",
-    //     msg: "test websocket",
-    //   })
-    // );
-  };
-  socket.onmessage = parseSocketMsg;
-  socket.onerror = function () {
-    ElMessage({
-      message: "Websocket error",
-      grouping: true,
-      type: "error",
-    });
-  };
-  socket.onclose = function () {
-    console.log("Websocket closed......");
-  };
+  // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+  socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all";
+  createNewSocket();
 }
 </script>
 
@@ -1204,7 +1188,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.alert {
-    background-color: #f20c00; //#f56c6c;
+    background-color: #ff1602; //#f20c00; //#f56c6c;
   }
 
   &.dead {
@@ -1227,7 +1211,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.alert {
-    color: #f56c6c;
+    color: #ff1602; // #f56c6c;
   }
 
   &.dead {
