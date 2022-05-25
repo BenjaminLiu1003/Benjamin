@@ -276,7 +276,7 @@
         </el-col>
       </el-row>
     </el-main>
-    <el-aside width="450px">
+    <el-aside width="600px">
       <el-card v-if="0"
                style="height:0px">
         <div v-if="activePgIdx"
