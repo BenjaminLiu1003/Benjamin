@@ -416,10 +416,14 @@
              width="30%"
              draggable>
     <template #default>
-      <el-tree-select v-model="selection"
+      <!-- <el-tree-select v-model="selection"
                       :data="selections"
                       multiple
-                      show-checkbox />
+                      show-checkbox /> -->
+      Which combinations you want to monitor?
+      <treeselect v-model="selection"
+                  :multiple="true"
+                  :options="selections" />
     </template>
     <template #footer>
       <span class="dialog-footer">
@@ -452,6 +456,8 @@ import { ElMessage } from "_element-plus@1.2.0-beta.6@element-plus/es";
 import { dealResponseCode } from "@/utils/functions";
 import { formatTime } from "@/utils/index";
 import { subtitle, WEEK } from "@/constant/index";
+import Treeselect from "vue3-treeselect";
+import "vue3-treeselect/dist/vue3-treeselect.css";
 
 // import scroll from "vue-seamless-scroll";
 
@@ -466,25 +472,49 @@ const timeInfo = reactive({
   dateWeek: "",
 });
 
-const selection = ref()
-const selections = [
+const selection = ref();
+const selections = ref([
   {
-    value: "1",
-    label: "Level one 1",
+    id: "all_hosts",
+    label: "All Hosts",
     children: [
       {
-        value: "1-1",
-        label: "Level two 1-1",
-        children: [
-          {
-            value: "1-1-1",
-            label: "Level three 1-1-1",
-          },
-        ],
+        id: "host_1",
+        label: "fpis_kbsiml14",
       },
+      {
+        id: "host_2",
+        label: "fpis_kbsiml35",
+      },
+      {
+        id: "host_3",
+        label: "fpis_kbsiml66",
+      }
     ],
   },
-];
+  {
+    id: "all_strategies",
+    label: "All Strategies",
+    children: [
+      {
+        id: "strategy_1",
+        label: "JCT"
+      },
+      {
+        id: "strategy_2",
+        label: "JPAU",
+      },
+      {
+        id: "strategy_3",
+        label: "JPHEDG",
+      },
+      {
+        id: "strategy_4",
+        label: "JTRISK",
+      }
+    ]
+  },
+]);
 
 const jsonData = {
   PROGRAM: [
@@ -534,6 +564,16 @@ const jsonData = {
       name: "LGBM_00_5m",
       priority: 200,
     },
+  ],
+  S201: [
+    {
+      name: 'preopen',
+      currGMV: 11877554,
+      maxGMV: 101368752.959531,
+      symbols: 399,
+      engaged: 399,
+      priority: 500,
+    }
   ],
   RISKDATA: [
     {
@@ -619,6 +659,16 @@ const jsonData = {
       priority: 700,
     },
   ],
+  LIQSTGY: [
+    {
+      name: 'liqstgy',
+      currGMV: 11877913,
+      maxGMV: 100500011.259417,
+      symbols: 399,
+      engaged: 399,
+      priority: 500,
+    }
+  ]
 };
 // const data = [
 //   {

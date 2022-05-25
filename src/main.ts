@@ -18,7 +18,7 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import locale from "element-plus/lib/locale/lang/zh-cn";
 import SvgIcon from "./icons";
-import ElTreeSelect from 'el-tree-select'
+// import ElTreeSelect from 'el-tree-select'
 import JsonViewer from 'vue-json-viewer'
 // import JsonViewer from 'vue3-json-viewer'
 // import CodeEditor from 'bin-code-editor'
@@ -38,12 +38,12 @@ const app = createApp(App);
 app.use(PublicComponent);
 // app.use(dataV);
 app.use(SvgIcon);
-app.use(ElTreeSelect);
 app.use(JsonViewer);
 app.use(store);
 app.use(router);
 app.use(i18n);
 app.use(ElementPlus, { locale });
+// app.use(ElTreeSelect);
 app.directive("scrollBottom", {
   updated(el) {
     el.scrollTo({
