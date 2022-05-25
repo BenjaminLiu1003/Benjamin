@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="position:relative">
     <el-menu :default-active="activeSelection"
              mode="horizontal"
              background-color="black"
@@ -8,7 +8,7 @@
 
       <el-menu-item index="all"
                     style="background-color: rgba(0, 0, 0, 0.1) !important">
-        Collapsed
+        Overview
       </el-menu-item>
       <el-sub-menu index="host">
         <template #title>Host</template>
@@ -38,18 +38,25 @@
         </el-menu-item>
       </el-sub-menu>
 
-      <el-menu-item index="time"
+      <!-- <el-menu-item index="time"
                     disabled
                     style="position: absolute;right:0px;">
         {{ timeInfo.dateYear }} {{ timeInfo.dateWeek }}
         {{ timeInfo.dateDay }}
-      </el-menu-item>
+      </el-menu-item> -->
     </el-menu>
-    <!-- <span class="text"
-          style="color:red;">
+    <div style="position:absolute;top:18px;right:200px;background-color:transparent;color:green;font-size:24px;"
+         @click="settingVisible=true">
+      <!-- <Setting style="height: 2em; width: 2em"/> -->
+      <span>
+        <svg-icon icon-class="setting" />
+      </span>
+    </div>
+    <span class="text"
+          style="position:absolute;top:20px;right:0px;">
       {{ timeInfo.dateYear }} {{ timeInfo.dateWeek }}
       {{ timeInfo.dateDay }}
-    </span> -->
+    </span>
   </div>
   <!-- <div class="d-flex jc-between">
     <div class="d-flex aside-width"> -->
@@ -144,60 +151,64 @@
               </div>
             </template>
             <template #default>
-              <el-descriptions title="Program Details"
-                               direction="vertical"
-                               :column="7"
-                               size="large"
-                               border>
-                <el-descriptions-item label="Program"
-                                      :span="3">
-                  {{ programs[(row - 1) * cols + col - 1].name }}
-                </el-descriptions-item>
-                <el-descriptions-item label="Host"
-                                      :span="2">
-                  {{ programs[(row - 1) * cols + col - 1].host }}
-                </el-descriptions-item>
-                <el-descriptions-item label="Pid">
-                  {{ programs[(row - 1) * cols + col - 1].pid }}
-                </el-descriptions-item>
-                <el-descriptions-item label="Reboots">
-                  <el-tag type="danger">
-                    {{ programs[(row - 1) * cols + col - 1].reboots }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="Orders">
-                  <el-tag type="success">
-                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].orders }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="Trades">
-                  <el-tag type="success">
-                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].trades }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="Fails">
-                  <el-tag type="danger">
-                    {{ programs[(row - 1) * cols + col - 1]['modules'][0].fails }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="CurrGMV / MaxGMV"
-                                      :span="2">
-                  <el-progress :text-inside="true"
-                               :stroke-width="24"
-                               :percentage="programs[(row - 1) * cols + col - 1]['modules'][1].currGMV * 100 / programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV"
-                               :format="formatGMV(programs[(row - 1) * cols + col - 1]['modules'][1].currGMV, programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV)" />
-                </el-descriptions-item>
-                <el-descriptions-item label="Symbols">
-                  <el-tag type="success">
-                    {{ programs[(row - 1) * cols + col - 1]['modules'][2].symbols }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="Engaged">
-                  <el-tag type="success">
-                    {{ programs[(row - 1) * cols + col - 1]['modules'][2].engaged }}
-                  </el-tag>
-                </el-descriptions-item>
-              </el-descriptions>
+              <div style="max-height:750px;overflow: auto;">
+                <el-descriptions title="Program Details"
+                                 direction="vertical"
+                                 :column="7"
+                                 size="large"
+                                 border>
+                  <el-descriptions-item label="Program"
+                                        :span="3">
+                    {{ programs[(row - 1) * cols + col - 1].name }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Host"
+                                        :span="2">
+                    {{ hosts[programs[(row - 1) * cols + col - 1].host - 1].name }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Pid">
+                    {{ programs[(row - 1) * cols + col - 1].pid }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Reboots">
+                    <el-tag type="danger">
+                      {{ programs[(row - 1) * cols + col - 1].reboots }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Orders">
+                    <el-tag type="success">
+                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].orders }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Trades">
+                    <el-tag type="success">
+                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].trades }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Fails">
+                    <el-tag type="danger">
+                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].fails }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="CurrGMV / MaxGMV"
+                                        :span="2">
+                    <el-progress :text-inside="true"
+                                 :stroke-width="24"
+                                 :percentage="programs[(row - 1) * cols + col - 1]['modules'][1].currGMV * 100 / programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV"
+                                 :format="formatGMV(programs[(row - 1) * cols + col - 1]['modules'][1].currGMV, programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV)" />
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Symbols">
+                    <el-tag type="success">
+                      {{ programs[(row - 1) * cols + col - 1]['modules'][2].symbols }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Engaged">
+                    <el-tag type="success">
+                      {{ programs[(row - 1) * cols + col - 1]['modules'][2].engaged }}
+                    </el-tag>
+                  </el-descriptions-item>
+                </el-descriptions>
+
+                <json-viewer :value="jsonData"></json-viewer>
+              </div>
             </template>
           </el-popover>
           <!-- <el-container 
@@ -399,6 +410,29 @@
             <el-table-column property="modInfo.engaged" label="engaged" />
         </el-table>
     </el-drawer> -->
+
+  <el-dialog v-model="settingVisible"
+             title="Settings"
+             width="30%"
+             draggable>
+    <template #default>
+      <el-tree-select v-model="selection"
+                      :data="selections"
+                      multiple
+                      show-checkbox />
+    </template>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="settingVisible=false">
+          Cancel
+        </el-button>
+        <el-button type="primary"
+                   @click="settingVisible=false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -409,13 +443,16 @@ import {
   onMounted,
   ref,
   watch,
+  defineComponent,
 } from "vue";
+import { Setting } from "@element-plus/icons-vue";
 // import EntryDrawer from './components/entrydrawer.vue'
 import http from "@/utils/network/http";
 import { ElMessage } from "_element-plus@1.2.0-beta.6@element-plus/es";
 import { dealResponseCode } from "@/utils/functions";
 import { formatTime } from "@/utils/index";
 import { subtitle, WEEK } from "@/constant/index";
+
 // import scroll from "vue-seamless-scroll";
 
 // const currentDate = ref(new Date())
@@ -428,6 +465,231 @@ const timeInfo = reactive({
   dateYear: "",
   dateWeek: "",
 });
+
+const selection = ref()
+const selections = [
+  {
+    value: "1",
+    label: "Level one 1",
+    children: [
+      {
+        value: "1-1",
+        label: "Level two 1-1",
+        children: [
+          {
+            value: "1-1-1",
+            label: "Level three 1-1-1",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const jsonData = {
+  PROGRAM: [
+    {
+      name: "JCTHEDG_1",
+      startTime: 1653465021,
+    },
+  ],
+  RISK: [
+    {
+      name: "risk",
+      priority: 41,
+    },
+  ],
+  RMMSTATUS: [
+    {
+      name: "rmmst",
+      priority: 500,
+    },
+  ],
+  PECM: [
+    {
+      name: "pecm",
+      priority: 950,
+    },
+  ],
+  PEALPHA: [
+    {
+      name: "preoo",
+      priority: 500,
+    },
+  ],
+  LGBM: [
+    {
+      name: "LGBM_OO_0900",
+      priority: 200,
+    },
+    {
+      name: "LGBM_OO_VWAP",
+      priority: 200,
+    },
+    {
+      name: "LGBM_OO_Flow",
+      priority: 200,
+    },
+    {
+      name: "LGBM_00_5m",
+      priority: 200,
+    },
+  ],
+  RISKDATA: [
+    {
+      name: "rds",
+      priority: 22,
+    },
+  ],
+  ALPHA: [
+    {
+      name: "alpha",
+      priority: 1,
+    },
+  ],
+  PRED: [
+    {
+      name: "alpha.p201",
+      priority: 1,
+    },
+  ],
+  PWGT: [
+    {
+      name: "wgtset.dftwgt",
+      priority: 500,
+    },
+  ],
+  MDA: [
+    {
+      name: "MDA",
+      priority: 2,
+    },
+  ],
+  MD: [
+    {
+      name: "md",
+      priority: 8,
+    },
+  ],
+  BKCK: [
+    {
+      name: "bkck",
+      priority: 1000,
+    },
+  ],
+  QRLOG: [
+    {
+      name: "qrlog",
+      priority: 1,
+    },
+  ],
+  CTM: [
+    {
+      name: "ct",
+      priority: 31,
+    },
+  ],
+  MCM: [
+    {
+      name: "mcc",
+      priority: 5,
+    },
+  ],
+  ASPECT: [
+    {
+      name: "aspect",
+      priority: 9,
+    },
+  ],
+  PNL: [
+    {
+      name: "pnl",
+      priority: 900,
+    },
+  ],
+  TCM: [
+    {
+      name: "tcm",
+      priority: 9,
+    },
+  ],
+  DE: [
+    {
+      name: "de",
+      priority: 700,
+    },
+  ],
+};
+// const data = [
+//   {
+//     value: '1',
+//     label: 'Level one 1',
+//     children: [
+//       {
+//         value: '1-1',
+//         label: 'Level two 1-1',
+//         children: [
+//           {
+//             value: '1-1-1',
+//             label: 'Level three 1-1-1',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   {
+//     value: '2',
+//     label: 'Level one 2',
+//     children: [
+//       {
+//         value: '2-1',
+//         label: 'Level two 2-1',
+//         children: [
+//           {
+//             value: '2-1-1',
+//             label: 'Level three 2-1-1',
+//           },
+//         ],
+//       },
+//       {
+//         value: '2-2',
+//         label: 'Level two 2-2',
+//         children: [
+//           {
+//             value: '2-2-1',
+//             label: 'Level three 2-2-1',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   {
+//     value: '3',
+//     label: 'Level one 3',
+//     children: [
+//       {
+//         value: '3-1',
+//         label: 'Level two 3-1',
+//         children: [
+//           {
+//             value: '3-1-1',
+//             label: 'Level three 3-1-1',
+//           },
+//         ],
+//       },
+//       {
+//         value: '3-2',
+//         label: 'Level two 3-2',
+//         children: [
+//           {
+//             value: '3-2-1',
+//             label: 'Level three 3-2-1',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+// ]
 
 const formatTimeInfo = () => {
   const date = new Date();
@@ -473,6 +735,7 @@ const activeGroupIdx = ref(null);
 let activePgIdx = ref(null);
 const activeSelection = ref("all");
 let isGrouping = ref(false);
+let settingVisible = ref(false);
 
 let socket, socketUrl;
 const createNewSocket = () => {
@@ -510,20 +773,14 @@ const handleSelect = (key: string, keyPath: string[]) => {
   }
 
   if (keyPath[0] == "all") {
-    isGrouping.value = true;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/all/all";
-    // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
+    isGrouping.value = false;
     socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all";
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/host/" + key;
     socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/host/" + key;
-    // socketUrl = "ws://7.151.16.99:6919/quoter/host/" + key
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
-    // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
     socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/strategy/" + key;
-    // socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
   }
 
   createNewSocket();
@@ -575,7 +832,6 @@ watch(onlyShowAlert, (newValue, oldValue) => {
 });
 
 watch(activeGroupIdx, (newValue, oldValue) => {
-  console.log(newValue, "<----", oldValue);
   if (newValue == null) {
     if (isGrouping.value) {
       programs.value = [];
@@ -703,8 +959,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
 });
 const enterBox = (index) => {
   activePgIdx.value = index;
-  console.log("programs:", programs.value);
-  activeGroupIdx.value = programs.value[index].group;
+  // activeGroupIdx.value = programs.value[index].group;
   // console.log("enter...");
   // for ( var i = 0; i < programs.value.length; ++i) {
   //   console.log("Before", programs.value[i].class)
@@ -717,7 +972,6 @@ const enterBox = (index) => {
 };
 
 const leaveBox = () => {
-  console.log("leave...");
   activePgIdx.value = null;
   activeGroupIdx.value = null;
   // for ( var i = 0; i < programs.value.length; ++i) {
@@ -741,12 +995,10 @@ const numberKeys = ["orders", "trades", "fails", "currGMV", "maxGMV"];
 // let programs_keys = ref([]);
 
 onBeforeUnmount(() => {
-  console.log("onBeforeUnmount");
   //   stopQueryStatus()
 });
 
 const tableRowClassName = ({ row, rowIndex }) => {
-  console.log("row....", row.second.fails, row.second.fails > 300);
   if (row.second.fails > 300) {
     return "error-row";
   } else if (row.second.since == "") {
@@ -769,8 +1021,6 @@ const formatSymbols = (symbols, engaged) => {
 
 const parseSocketMsg = (msg) => {
   var response = JSON.parse(msg.data);
-  console.log("response");
-  console.log(response);
   dealResponseCode(
     response,
     function successHandler() {
@@ -811,11 +1061,8 @@ const parseSocketMsg = (msg) => {
         for (var i = 0; i < grouped.value.length; ++i) {
           grouped.value[i].opacity = 1;
         }
-        console.log("coming hosts...");
-        console.log(response.data.hosts);
+
         hosts.value = response.data.hosts;
-        console.log("parsed hosts");
-        console.log(hosts.value);
         actualPrograms.value = response.data.programs;
 
         for (i = 0; i < actualPrograms.value.length; ++i) {
@@ -869,9 +1116,6 @@ const parseSocketMsg = (msg) => {
         } else {
           programs.value = actualPrograms.value;
         }
-
-        console.log("Programs: ", programs.value);
-        console.log("actualPrograms: ", actualPrograms.value);
       } else {
         program = response.data.program;
         for (var idx = 0; idx < actualPrograms.value.length; ++idx) {

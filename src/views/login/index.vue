@@ -46,82 +46,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
-import { dealResponseCode } from '@/utils/functions'
+import { ref, watch } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { ElMessage } from "element-plus";
+import { dealResponseCode } from "@/utils/functions";
 
-const { t } = useI18n()
-const store = useStore()
-const router = useRouter()
-const loading = ref(false)
-const pwdType = ref('')
+const { t } = useI18n();
+const store = useStore();
+const router = useRouter();
+const loading = ref(false);
+const pwdType = ref("");
 
-const loginFormRef = ref()
+const loginFormRef = ref();
 const loginForm = ref({
-  username: '',
-  password: '',
-})
+  username: "",
+  password: "",
+});
 
 const loginRules = ref({
   username: [
     {
       required: true,
-      message: t('input_name'),
-      trigger: 'blur',
+      message: t("username_required"),
+      trigger: "blur",
     },
   ],
   password: [
     {
       required: true,
-      message: t('input_password'),
-      trigger: 'blur',
+      message: t("password_required"),
+      trigger: "blur",
     },
   ],
-})
+});
 
-let redirect = undefined
+let redirect = undefined;
 watch(
   () => router,
   (newValue, oldValue) => {
-    console.log(newValue)
+    console.log(newValue);
     redirect =
       newValue.currentRoute.value.query &&
-      newValue.currentRoute.value.query.redirect
+      newValue.currentRoute.value.query.redirect;
   },
   { immediate: true }
-)
+);
 
 const showPwd = () => {
-  pwdType.value === '' ? (pwdType.value = 'password') : (pwdType.value = '')
-}
+  pwdType.value === "" ? (pwdType.value = "password") : (pwdType.value = "");
+};
 
 const handleLogin = () => {
   loginFormRef.value.validate((valid) => {
     if (!valid) {
-      ElMessage.error(t('complete_necessary_message'))
-      return
+      ElMessage.error(t("complete_necessary_message"));
+      return;
     }
 
-    loading.value = true
-    store.dispatch('Login', loginForm.value).then((response) => {
-      console.log("login....", response)
+    loading.value = true;
+    store.dispatch("Login", loginForm.value).then((response) => {
       dealResponseCode(
         response,
         function successHandler() {
-          console.log('push to:', redirect)
-          router.push({ path: redirect || '/' })
+          console.log("push to:", redirect);
+          router.push({ path: redirect || "/" });
         },
         function failHandler() {
-          ElMessage.error(response.msg)
+          ElMessage({
+            type: 'error',
+            grouping: true,
+            message: response.desc,
+          })
+        },
+        function nextHandler() {
+          //
         }
-      )
-      loading.value = false
-    })
-  })
-}
+      );
+      loading.value = false;
+    });
+  });
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

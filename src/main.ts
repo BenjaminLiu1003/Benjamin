@@ -18,6 +18,11 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import locale from "element-plus/lib/locale/lang/zh-cn";
 import SvgIcon from "./icons";
+import ElTreeSelect from 'el-tree-select'
+import JsonViewer from 'vue-json-viewer'
+// import JsonViewer from 'vue3-json-viewer'
+// import CodeEditor from 'bin-code-editor'
+// import 'bin-code-editor/lib/styles/index.css'
 // import axios from "axios";
 // import { i18n } from "./lang/i18n.js";
 
@@ -27,10 +32,14 @@ const i18n = createI18n({
   locale: "en",
   fallbackLocale: "en"
 });
+
 const app = createApp(App);
+// app.use(CodeEditor);
 app.use(PublicComponent);
 // app.use(dataV);
 app.use(SvgIcon);
+app.use(ElTreeSelect);
+app.use(JsonViewer);
 app.use(store);
 app.use(router);
 app.use(i18n);

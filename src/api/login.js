@@ -7,8 +7,8 @@ export function login(username, password) {
 		"username": username,
 		"password": password
 	}
-	return http.get('quoter/all', {from: 0, to:MAX_DISPLAY_ENTRIES - 1})
-	// return http.post(url, data)
+	// return http.get('quoter/all', {from: 0, to:MAX_DISPLAY_ENTRIES - 1})
+	return http.post(url, data)
 }
 
 export function logout() {

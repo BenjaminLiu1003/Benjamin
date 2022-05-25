@@ -8,6 +8,7 @@ export function dealResponseCode(
   switch (code) {
     // GeneralGetSuccess
     case 200000:
+    case 200104:
       successHandler();
       break;
     case 400000:
@@ -18,6 +19,7 @@ export function dealResponseCode(
     case 400005:
     case 400006:
     case 400007:
+    case 400104:
     case 400200:
     case 400201:
     case 400202:
