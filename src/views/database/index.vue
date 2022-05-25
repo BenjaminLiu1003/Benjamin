@@ -522,7 +522,7 @@ const handleSelect = (key: string, keyPath: string[]) => {
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
     // socketUrl = "ws://192.168.0.120:6919/quoter/strategy/" + key;
-    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "/quoter/strategy/" + key;
+    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/strategy/" + key;
     // socketUrl = "ws://7.151.16.99:6919/quoter/strategy/" + key
   }
 
