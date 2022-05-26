@@ -20,11 +20,11 @@
       </el-sub-menu>
 
       <el-sub-menu index="strategy">
-        <template #title>Strategy</template>
-        <el-menu-item v-for="(group, index) in grouped"
+        <template #title>Project</template>
+        <el-menu-item v-for="(project, index) in projects"
                       :key="index"
-                      :index="group.name">
-          {{ group.name }}
+                      :index="project.name">
+          {{ project.name }}
         </el-menu-item>
       </el-sub-menu>
 
@@ -97,7 +97,7 @@
           </span>
         </div>
         <template #dropdown>
-          <el-dropdown-menu v-for="(group, index) in grouped"
+          <el-dropdown-menu v-for="(group, index) in projects"
                             :key="index">
             <el-dropdown-item>{{ group.name }}</el-dropdown-item>
           </el-dropdown-menu>
@@ -139,75 +139,91 @@
                 :key="col"
                 style="padding: 0px">
           <el-popover v-if="(row - 1) * cols + col - 1 < programs.length"
-                      :width="600"
-                      trigger="hover">
+                      :width="800"
+                      trigger="hover"
+                      :show-after="300">
             <!-- popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"> -->
             <template #reference>
               <div class="thumbnail-box content"
-                   :class="programs[(row - 1) * cols + col - 1].class"
+                   :class="programs[(row - 1) * cols + col - 1].state"
                    @mouseenter="enterBox((row - 1) * cols + col - 1)"
                    @mouseleave="leaveBox">
-                {{ programs[(row - 1) * cols + col - 1].name }}
+                {{ programs[(row - 1) * cols + col - 1].program }}
               </div>
             </template>
             <template #default>
-              <div style="max-height:750px;overflow: auto;">
+              <div style="max-height:780px;overflow: auto;">
                 <el-descriptions title="Program Details"
                                  direction="vertical"
-                                 :column="7"
+                                 :column="10"
                                  size="large"
                                  border>
                   <el-descriptions-item label="Program"
                                         :span="3">
-                    {{ programs[(row - 1) * cols + col - 1].name }}
+                    {{ programs[(row - 1) * cols + col - 1].program }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Host"
                                         :span="2">
-                    {{ hosts[programs[(row - 1) * cols + col - 1].host - 1].name }}
+                    {{ programs[(row - 1) * cols + col - 1].host }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Pid">
+                  <el-descriptions-item label="Pid"
+                                        :width="85">
                     {{ programs[(row - 1) * cols + col - 1].pid }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Reboots">
+                  <el-descriptions-item label="Reboots"
+                                        :width="85">
                     <el-tag type="danger">
                       {{ programs[(row - 1) * cols + col - 1].reboots }}
                     </el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="Orders">
+                  <el-descriptions-item label="Since"
+                                        :span="3">
+                    {{ formatTime(1000 * programs[(row - 1) * cols + col - 1].startTime, "yyyy-MM-dd HH:mm:ss") }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Orders"
+                                        :width="85">
                     <el-tag type="success">
-                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].orders }}
+                      {{ getOrders((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="Trades">
+                  <el-descriptions-item label="Trades"
+                                        :width="85">
                     <el-tag type="success">
-                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].trades }}
+                      {{ getTrades((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="Fails">
+                  <el-descriptions-item label="Fails"
+                                        :width="85">
                     <el-tag type="danger">
-                      {{ programs[(row - 1) * cols + col - 1]['modules'][0].fails }}
+                      {{ getFails((row - 1) * cols + col - 1) }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Symbols"
+                                        :width="85">
+                    <el-tag type="success">
+                      {{ getSymbols((row - 1) * cols + col - 1) }}
+                    </el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Engaged"
+                                        :width="85">
+                    <el-tag type="success">
+                      {{ getEngaged((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="CurrGMV / MaxGMV"
-                                        :span="2">
+                                        :span="5">
                     <el-progress :text-inside="true"
                                  :stroke-width="24"
-                                 :percentage="programs[(row - 1) * cols + col - 1]['modules'][1].currGMV * 100 / programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV"
-                                 :format="formatGMV(programs[(row - 1) * cols + col - 1]['modules'][1].currGMV, programs[(row - 1) * cols + col - 1]['modules'][1].maxGMV)" />
+                                 :percentage="getGMVPercentage((row - 1) * cols + col - 1)"
+                                 :format="formatGMV((row - 1) * cols + col - 1)" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="Symbols">
-                    <el-tag type="success">
-                      {{ programs[(row - 1) * cols + col - 1]['modules'][2].symbols }}
-                    </el-tag>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="Engaged">
-                    <el-tag type="success">
-                      {{ programs[(row - 1) * cols + col - 1]['modules'][2].engaged }}
-                    </el-tag>
+                  <el-descriptions-item label="All Components Information"
+                                        :span="10">
+                    <json-viewer :value="programs[(row - 1) * cols + col - 1]['modules']"
+                                 sort
+                                 copyable></json-viewer>
                   </el-descriptions-item>
                 </el-descriptions>
-
-                <json-viewer :value="jsonData"></json-viewer>
               </div>
             </template>
           </el-popover>
@@ -293,7 +309,7 @@
         <div v-if="activePgIdx"
              class="clearfix">
           <span>
-            {{ programs[activePgIdx].name + "@" + programs[activePgIdx].host }}
+            {{ programs[activePgIdx].program + "@" + programs[activePgIdx].host }}
           </span>
         </div>
         <el-descriptions v-if="activePgIdx"
@@ -361,7 +377,7 @@
         <div v-for="(log, index) in logs"
              :key="index"
              class="scroll-item"
-             :style="log.color">
+             :class="log.state">
           <p style="font-size:15px">
             {{ formatLogTitle(index) }}
           </p>
@@ -413,19 +429,54 @@
 
   <el-dialog v-model="settingVisible"
              title="Settings"
-             width="30%"
+             width="50%"
              draggable>
     <template #default>
+      <el-form ref="settings_form"
+               :model="settings"
+               label-width="auto"
+               label-position="left"
+               size="default">
+        <el-form-item label="Hosts">
+          <el-checkbox-group v-model="settings.hosts"
+          @change="changeFilter">
+            <el-checkbox-button v-for="(host, index) in hosts"
+                                :key="index"
+                                :label="host.name"
+                                name="type" />
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="Projects">
+          <el-checkbox-group v-model="settings.projects"
+          @change="changeFilter">
+            <el-checkbox-button v-for="(project, index) in projects"
+                                :key="index"
+                                :label="project.name"
+                                name="type" />
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item label="Color">
+          <div style="display: flex;align-items: center;margin-bottom: 16px;">
+            <span class="demonstration" style="margin-right: 10px;">Normal</span>
+            <el-color-picker v-model="normalColor" />
+            <span class="demonstration" style="margin-left:10px;margin-right:10px;">Warning</span>
+            <el-color-picker v-model="warningColor" />
+            <span class="demonstration" style="margin-left:10px;margin-right:10px;">Alert</span>
+            <el-color-picker v-model="alertColor" />
+          </div>
+        </el-form-item>
+      </el-form>
       <!-- <el-tree-select v-model="selection"
                       :data="selections"
                       multiple
-                      show-checkbox /> -->
+                      show-checkbox />
       Which combinations you want to monitor?
       <treeselect v-model="selection"
                   :multiple="true"
-                  :options="selections" />
+                  :options="selections" /> -->
     </template>
-    <template #footer>
+    <!-- <template #footer>
       <span class="dialog-footer">
         <el-button @click="settingVisible=false">
           Cancel
@@ -435,7 +486,7 @@
           Confirm
         </el-button>
       </span>
-    </template>
+    </template> -->
   </el-dialog>
 </template>
 
@@ -472,6 +523,9 @@ const timeInfo = reactive({
   dateWeek: "",
 });
 
+const normalColor = ref("#006400");
+const alertColor = ref("#ff1602");
+const warningColor = ref("#e6a23c");
 const selection = ref();
 const selections = ref([
   {
@@ -489,7 +543,7 @@ const selections = ref([
       {
         id: "host_3",
         label: "fpis_kbsiml66",
-      }
+      },
     ],
   },
   {
@@ -498,7 +552,7 @@ const selections = ref([
     children: [
       {
         id: "strategy_1",
-        label: "JCT"
+        label: "JCT",
       },
       {
         id: "strategy_2",
@@ -511,8 +565,8 @@ const selections = ref([
       {
         id: "strategy_4",
         label: "JTRISK",
-      }
-    ]
+      },
+    ],
   },
 ]);
 
@@ -567,13 +621,13 @@ const jsonData = {
   ],
   S201: [
     {
-      name: 'preopen',
+      name: "preopen",
       currGMV: 11877554,
       maxGMV: 101368752.959531,
       symbols: 399,
       engaged: 399,
       priority: 500,
-    }
+    },
   ],
   RISKDATA: [
     {
@@ -661,14 +715,14 @@ const jsonData = {
   ],
   LIQSTGY: [
     {
-      name: 'liqstgy',
+      name: "liqstgy",
       currGMV: 11877913,
       maxGMV: 100500011.259417,
       symbols: 399,
       engaged: 399,
       priority: 500,
-    }
-  ]
+    },
+  ],
 };
 // const data = [
 //   {
@@ -741,8 +795,8 @@ const jsonData = {
 //   },
 // ]
 
-const formatTimeInfo = () => {
-  const date = new Date();
+const formatTimeInfo = (date) => {
+  // const date = new Date();
   timeInfo.dateDay = formatTime(date, "HH: mm: ss");
   timeInfo.dateYear = formatTime(date, "yyyy-MM-dd");
   timeInfo.dateWeek = WEEK[date.getDay()];
@@ -750,11 +804,11 @@ const formatTimeInfo = () => {
 
 const handleTime = () => {
   timeInfo.setInterval = setInterval(() => {
-    formatTimeInfo();
+    formatTimeInfo(new Date());
   }, 1000);
 };
 
-formatTimeInfo();
+formatTimeInfo(new Date());
 handleTime();
 
 let host = ref(null);
@@ -773,8 +827,21 @@ let host = ref(null);
 //   },
 // ];
 
-let grouped = ref([]);
+let projects = ref([]);
 let hosts = ref([]);
+let socket, socketUrl;
+const settings = reactive({
+  hosts: [],
+  projects: [],
+});
+
+const changeFilter = (value) => {
+      socketUrl =
+      process.env.VUE_APP_WEBSOCKET_URL +
+      "quoter?" +
+      JSON.stringify(settings);
+      createNewSocket();
+}
 
 let onlyShowAlert = ref(false);
 let actualPrograms = ref([]); // the stored whole programs
@@ -787,7 +854,90 @@ const activeSelection = ref("all");
 let isGrouping = ref(false);
 let settingVisible = ref(false);
 
-let socket, socketUrl;
+const getOrders = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "gwm") {
+      continue;
+    }
+    return programs.value[index].modules[key].orders;
+  }
+  return 0;
+};
+
+const getTrades = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "gwm") {
+      continue;
+    }
+    return programs.value[index].modules[key].trades;
+  }
+  return 0;
+};
+
+const getFails = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "gwm") {
+      continue;
+    }
+    return programs.value[index].modules[key].fails;
+  }
+  return 0;
+};
+
+const getSymbols = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "liqstgy") {
+      continue;
+    }
+    return programs.value[index].modules[key].symbols;
+  }
+  return 0;
+};
+
+const getEngaged = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "liqstgy") {
+      continue;
+    }
+    return programs.value[index].modules[key].engaged;
+  }
+  return 0;
+};
+
+const getMaxGMV = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "liqstgy") {
+      continue;
+    }
+    return programs.value[index].modules[key].maxGMV;
+  }
+  return 0;
+};
+
+const getCurrGMV = (index) => {
+  for (var key in programs.value[index].modules) {
+    if (key !== "liqstgy") {
+      continue;
+    }
+    return programs.value[index].modules[key].currGMV;
+  }
+  return 0;
+};
+
+const formatGMV = (index) => {
+  return () => {
+    return "Curr:" + getCurrGMV(index); // + ",Max:" + maxGMV;
+  };
+};
+
+const getGMVPercentage = (index) => {
+  var maxGMV = getMaxGMV(index);
+  if (maxGMV == 0) {
+    return 0;
+  }
+  return (getCurrGMV(index) * 100) / maxGMV;
+};
+
 const createNewSocket = () => {
   if (socket !== undefined) {
     socket.close();
@@ -824,13 +974,19 @@ const handleSelect = (key: string, keyPath: string[]) => {
 
   if (keyPath[0] == "all") {
     isGrouping.value = false;
-    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all";
+    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
-    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/host/" + key;
+    socketUrl =
+      process.env.VUE_APP_WEBSOCKET_URL +
+      "quoter?" +
+      JSON.stringify({ hosts: [key] });
   } else if (keyPath[0] == "strategy") {
     isGrouping.value = false;
-    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/strategy/" + key;
+    socketUrl =
+      process.env.VUE_APP_WEBSOCKET_URL +
+      "quoter?" +
+      JSON.stringify({ projects: [key] });
   }
 
   createNewSocket();
@@ -838,14 +994,14 @@ const handleSelect = (key: string, keyPath: string[]) => {
 
 const formatLogTitle = (index) => {
   for (var program of actualPrograms.value) {
-    if (logs.value[index].id === program.id) {
+    if (logs.value[index].program_id === program.program_id) {
       return (
         "[" +
         logs.value[index].ctime +
         "]:" +
-        program.name +
+        program.program +
         "@" +
-        hosts.value[program.host - 1].name
+        program.host
       );
     }
   }
@@ -868,7 +1024,7 @@ watch(onlyShowAlert, (newValue, oldValue) => {
     var normal = [];
     var abnormal = [];
     for (var program of actualPrograms.value) {
-      if (program["class"].indexOf("alert") !== -1) {
+      if (program["state"].indexOf("alert") !== -1) {
         abnormal.push(program);
       } else {
         normal.push(program);
@@ -885,7 +1041,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
   if (newValue == null) {
     if (isGrouping.value) {
       programs.value = [];
-      for (var group of grouped.value) {
+      for (var group of projects.value) {
         var newProgram = null;
         for (var program of actualPrograms.value) {
           if (program.group == group.id) {
@@ -926,7 +1082,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
   } else {
     if (isGrouping.value) {
       programs.value = [];
-      for (group of grouped.value) {
+      for (group of projects.value) {
         if (group.id === newValue) {
           for (program of actualPrograms.value) {
             if (program.group === newValue) {
@@ -977,7 +1133,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
       } else {
         program.class = program.class.replace(/opacity/g, "");
         // ElMessage({
-        //   message: grouped.value[program.group].name,
+        //   message: projects.value[program.group].name,
         //   grouping: true,
         //   type: "success",
         // });
@@ -986,7 +1142,7 @@ watch(activeGroupIdx, (newValue, oldValue) => {
 
     // var oldGroupIdx = -1,
     //   newGroupIdx = -1;
-    // for (var group of grouped.value) {
+    // for (var group of projects.value) {
     //   var idx = group.programs.indexOf(newValue);
     //   if (idx !== -1) {
     //     newGroupIdx = idx;
@@ -1057,12 +1213,6 @@ const tableRowClassName = ({ row, rowIndex }) => {
   return "";
 };
 
-const formatGMV = (currGMV, maxGMV) => {
-  return () => {
-    return "Curr:" + currGMV; // + ",Max:" + maxGMV;
-  };
-};
-
 const formatSymbols = (symbols, engaged) => {
   return () => {
     return "Symbols:" + symbols + ",Engaged: " + engaged;
@@ -1071,66 +1221,78 @@ const formatSymbols = (symbols, engaged) => {
 
 const parseSocketMsg = (msg) => {
   var response = JSON.parse(msg.data);
+  console.log("Response:", response);
   dealResponseCode(
     response,
     function successHandler() {
+      var data = response.data;
       // first time: get the whole programs
-      if (response.data.programs !== undefined) {
+      if (data.programs !== undefined) {
         onlyShowAlert.value = false;
         actualPrograms.value = [];
         programs.value = [];
-        grouped.value = [];
+        projects.value = [];
         hosts.value = [];
         logs.value = [];
         rows.value = 0;
         activePgIdx.value = null;
         activeGroupIdx.value = null;
 
-        if (response.data.logs !== undefined) {
-          for (i = 0; i < response.data.logs.length; ++i) {
-            if (response.data.logs[i].level == "0") {
-              var color = "color: #67c23a"; // success
-            } else if (response.data.logs[i].level == "1") {
-              color = "color: #e6a23c"; // warning
-            } else if (response.data.logs[i].level == "2") {
-              color = "color: #ff1602"; // alert #f56c6c #f20c00
+        if (data.logs !== undefined) {
+          for (var log of data.logs) {
+            if (log.level == "0") {
+              // var color = "color: " + normalColor.value;// "color: #67c23a"; // success
+              var state = "normal"
+            } else if (log.level == "1") {
+              // color = "color: " + warningColor.value;// "color: #e6a23c"; // warning
+              state = "warning"
+            } else if (log.level == "2") {
+              // color = "color: " + alertColor.value;// "color: #ff1602"; // alert #f56c6c #f20c00
+              state = "alert"
             } else {
-              color = "color: #909399";
+              // color = "color: #909399";
+              state = "normal"
             }
             logs.value.push({
-              id: response.data.logs[i].program,
-              text: response.data.logs[i].text,
-              level: response.data.logs[i].level,
-              color: color,
-              ctime: response.data.logs[i].ctime,
+              program_id: log.program,
+              text: log.text,
+              level: log.level,
+              state: state,
+              ctime: log.ctime,
             });
           }
         }
 
-        grouped.value = response.data.groups;
-        for (var i = 0; i < grouped.value.length; ++i) {
-          grouped.value[i].opacity = 1;
+        projects.value = data.projects;
+        for (var project of projects.value) {
+          project.opacity = 1;
         }
 
-        hosts.value = response.data.hosts;
-        actualPrograms.value = response.data.programs;
+        hosts.value = data.hosts;
+        actualPrograms.value = data.programs;
 
-        for (i = 0; i < actualPrograms.value.length; ++i) {
-          if (actualPrograms.value[i].modules == undefined) {
-            actualPrograms.value[i].modules = [];
-            actualPrograms.value[i]["class"] = "dead blink-border";
-          } else if (
-            actualPrograms.value[i].modules[0].fails >
-            actualPrograms.value[i].modules[0].trades
-          ) {
-            actualPrograms.value[i]["class"] = "alert";
+        for (program of actualPrograms.value) {
+          // for (var i = 0; i < actualPrograms.value.length; ++i) {
+          if (program.modules == undefined) {
+            program.modules = {};
+            program["state"] = "dead blink-border";
           } else {
-            actualPrograms.value[i]["class"] = "normal";
+            program["state"] = "normal";
+            for (var key in program.modules) {
+              if (
+                key == "gwm" &&
+                program.modules[key].fails > program.modules[key].trades
+              ) {
+                program["state"] = "alert";
+              }
+            }
           }
+          var now = new Date();
+          program["last_state_time"] = now.getTime();
         }
 
         if (isGrouping.value) {
-          for (var group of grouped.value) {
+          for (var group of projects.value) {
             var newProgram = null;
             for (var program of actualPrograms.value) {
               if (program.group == group.id) {
@@ -1138,7 +1300,7 @@ const parseSocketMsg = (msg) => {
                   newProgram = {
                     group: group.id,
                     name: group.name,
-                    class: "alert",
+                    state: "alert",
                     modules: [
                       { name: "component1", orders: 0, trades: 0, fails: 0 },
                       { name: "component2", currGMV: 0, maxGMV: 1 },
@@ -1149,7 +1311,7 @@ const parseSocketMsg = (msg) => {
                   newProgram = {
                     group: group.id,
                     name: group.name,
-                    class: "normal",
+                    state: "normal",
                     modules: [
                       { name: "component1", orders: 0, trades: 0, fails: 0 },
                       { name: "component2", currGMV: 0, maxGMV: 1 },
@@ -1167,55 +1329,73 @@ const parseSocketMsg = (msg) => {
           programs.value = actualPrograms.value;
         }
       } else {
-        program = response.data.program;
+        program = data.program;
         for (var idx = 0; idx < actualPrograms.value.length; ++idx) {
-          if (actualPrograms.value[idx].id == program.id) {
+          if (actualPrograms.value[idx].program_id == program.program_id) {
             break;
           }
         }
+        if (idx >= actualPrograms.value.length) {
+          return;
+        }
 
-        actualPrograms.value[idx].group = program.group;
-        actualPrograms.value[idx].host = program.host;
-        actualPrograms.value[idx].pid = program.pid;
-        actualPrograms.value[idx].reboots = program.reboots;
+        var oldState = actualPrograms.value[idx]["state"];
+        var lastStateTime = actualPrograms.value[idx]["last_state_time"];
+        var newState = "normal";
+        actualPrograms.value[idx] = program;
 
-        actualPrograms.value[idx]["class"] = actualPrograms.value[idx][
-          "class"
-        ].replace(/alert/g, "normal");
-        for (var newModule of program["modules"]) {
+        // actualPrograms.value[idx]["class"] = actualPrograms.value[idx][
+        //   "class"
+        // ].replace(/alert/g, "normal");
+        for (key in program.modules) {
           if (
-            newModule["name"] == "component2" &&
-            newModule["fails"] > newModule["trades"]
+            key == "gwm" &&
+            program.modules[key].fails > program.modules[key].trades
           ) {
-            actualPrograms.value[idx]["class"] = "alert";
+            newState = "alert";
           }
         }
 
-        for (newModule of program["modules"]) {
-          for (var oldModule of actualPrograms.value[idx]["modules"]) {
-            if (newModule["name"] == oldModule["name"]) {
-              oldModule = newModule;
-            }
+        now = new Date();
+        console.log("oldState:", oldState);
+        console.log("newState:", newState);
+        console.log("last:", lastStateTime);
+        console.log("now:", now);
+        if (oldState == "alert" && newState == "normal") {
+          if (now.getTime() - lastStateTime > 30 * 1000) {
+            actualPrograms.value[idx]["state"] = newState;
+          } else {
+            actualPrograms.value[idx]["state"] = oldState;
           }
-          if (newModule["name"] == "log") {
-            if (newModule["level"] == "0") {
-              color = "color: #67c23a"; // success
-            } else if (newModule["level"] == "1") {
-              color = "color: #e6a23c"; // warning
-            } else if (newModule["level"] == "2") {
-              color = "color: #ff1602"; // alert #f56c6c #f20c00
-            } else {
-              color = "color: #909399";
-            }
-            logs.value.push({
-              id: program.id,
-              text: newModule["text"],
-              level: newModule["level"],
-              color: color,
-              ctime: newModule["ctime"],
-            });
-          }
+        } else {
+          actualPrograms.value[idx]["state"] = newState;
         }
+        actualPrograms.value[idx]["last_state_time"] = now.getTime();
+
+        if (program["log"] && JSON.stringify(program["log"]) !== "{}") {
+          if (program["log"]["level"] == "0") {
+            // color = "color: #67c23a"; // success
+            state = "normal"
+          } else if (program["log"]["level"] == "1") {
+            // color = "color: #e6a23c"; // warning
+            state = "warning"
+          } else if (program["log"]["level"] == "2") {
+            // color = "color: #ff1602"; // alert #f56c6c #f20c00
+            state = "alert"
+          } else {
+            // color = "color: #909399";
+            state = "normal"
+          }
+          logs.value.push({
+            program_id: program.program_id,
+            text: program["log"]["text"],
+            level: program["log"]["level"],
+            // color: color,
+            state: state,
+            ctime: program["log"]["ctime"],
+          });
+        }
+
         if (logs.value.length > 40) {
           logs.value = logs.value.slice(logs.value.length - 40);
         }
@@ -1223,7 +1403,7 @@ const parseSocketMsg = (msg) => {
         programs.value = [];
         if (isGrouping.value) {
           if (activeGroupIdx.value !== null) {
-            for (group of grouped.value) {
+            for (group of projects.value) {
               if (group.id === activeGroupIdx.value) {
                 for (program of actualPrograms.value) {
                   if (program.group === activeGroupIdx.value) {
@@ -1278,7 +1458,7 @@ const parseSocketMsg = (msg) => {
               }
             }
           } else {
-            for (group of grouped.value) {
+            for (group of projects.value) {
               newProgram = null;
               for (program of actualPrograms.value) {
                 if (program.group == group.id) {
@@ -1319,7 +1499,7 @@ const parseSocketMsg = (msg) => {
           var normal = [];
           var abnormal = [];
           for (program of actualPrograms.value) {
-            if (program["class"].indexOf("alert") !== -1) {
+            if (program["state"].indexOf("alert") !== -1) {
               abnormal.push(program);
             } else {
               normal.push(program);
@@ -1402,7 +1582,8 @@ if (typeof WebSocket == "undefined") {
 } else {
   // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
   // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
-  socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all";
+  // socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all"
+  socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
   createNewSocket();
 }
 </script>
@@ -1450,7 +1631,7 @@ if (typeof WebSocket == "undefined") {
   //   }
   width: 100%;
   max-height: 26px;
-  font-size: 8px;
+  font-size: 6px;
   border-radius: 5px;
 
   &.content {
@@ -1470,7 +1651,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.normal {
-    background-color: #006400; //#42b983;
+    background-color: v-bind(normalColor);//#006400; //#42b983;
   }
 
   &.success {
@@ -1478,17 +1659,40 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.warning {
-    background-color: #e6a23c;
+    background-color: v-bind(warningColor);//#e6a23c;
   }
 
   &.alert {
-    background-color: #ff1602; //#f20c00; //#f56c6c;
+    background-color: v-bind(alertColor);//#ff1602; //#f20c00; //#f56c6c;
   }
 
   &.dead {
     background-color: #909399;
   }
 }
+
+.scroll-item {
+&.normal {
+  color: v-bind(normalColor);//#006400; //#42b983;
+}
+
+&.success {
+  color: #67c23a;
+}
+
+&.warning {
+  color: v-bind(warningColor);//#e6a23c;
+}
+
+&.alert {
+  color: v-bind(alertColor);//#ff1602; //#f20c00; //#f56c6c;
+}
+
+&.dead {
+  color: #909399;
+}
+}
+
 
 .log-box {
   font-size: 16px;
