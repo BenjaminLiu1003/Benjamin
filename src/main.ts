@@ -16,7 +16,7 @@ import { createI18n } from "vue-i18n";
 // 导入请求进度条组件和样式
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import locale from "element-plus/lib/locale/lang/zh-cn";
+import locale from "element-plus/lib/locale/lang/en";
 import SvgIcon from "./icons";
 // import ElTreeSelect from 'el-tree-select'
 import JsonViewer from 'vue-json-viewer'
