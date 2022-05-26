@@ -159,69 +159,92 @@
                                  size="large"
                                  border>
                   <el-descriptions-item label="Program"
-                                        :span="3">
+                                        :span="3"
+                                        align="center"
+                                        label-align="center">
                     {{ programs[(row - 1) * cols + col - 1].program }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Host"
-                                        :span="2">
+                                        :span="2"
+                                        align="center"
+                                        label-align="center">
                     {{ programs[(row - 1) * cols + col - 1].host }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Pid"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     {{ programs[(row - 1) * cols + col - 1].pid }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Reboots"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="danger">
                       {{ programs[(row - 1) * cols + col - 1].reboots }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Since"
-                                        :span="3">
+                                        :span="3"
+                                        align="center"
+                                        label-align="center">
                     {{ formatTime(1000 * programs[(row - 1) * cols + col - 1].startTime, "yyyy-MM-dd HH:mm:ss") }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Orders"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="success">
                       {{ getOrders((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Trades"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="success">
                       {{ getTrades((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Fails"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="danger">
                       {{ getFails((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Symbols"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="success">
                       {{ getSymbols((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Engaged"
-                                        :width="85">
+                                        :width="85"
+                                        align="center"
+                                        label-align="center">
                     <el-tag type="success">
                       {{ getEngaged((row - 1) * cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="CurrGMV / MaxGMV"
-                                        :span="5">
+                                        :span="5"
+                                        align="center"
+                                        label-align="center">
                     <el-progress :text-inside="true"
                                  :stroke-width="24"
                                  :percentage="getGMVPercentage((row - 1) * cols + col - 1)"
                                  :format="formatGMV((row - 1) * cols + col - 1)" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="All Components Information"
+                  <el-descriptions-item :label="formatComponentTitle((row - 1) * cols + col - 1)"
                                         :span="10">
                     <json-viewer :value="programs[(row - 1) * cols + col - 1]['modules']"
                                  sort
-                                 copyable></json-viewer>
+                                 copyable
+                                 theme="my-awesome-json-theme"></json-viewer>
                   </el-descriptions-item>
                 </el-descriptions>
               </div>
@@ -371,9 +394,9 @@
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
-      <div v-scrollBottom
+      <el-card v-scrollBottom
            class="scroll"
-           style="height:100%">
+           style="height:100%;background-color:black;">
         <div v-for="(log, index) in logs"
              :key="index"
              class="scroll-item"
@@ -385,7 +408,7 @@
             {{ log.text }}
           </p>
         </div>
-      </div>
+      </el-card>
       <!-- <el-scrollbar ref="logContainer"
                     height="67%">
         <el-timeline>
@@ -937,6 +960,10 @@ const getGMVPercentage = (index) => {
   }
   return (getCurrGMV(index) * 100) / maxGMV;
 };
+
+const formatComponentTitle = (index) => {
+  return "All Components Information (updated since " + programs.value[index].updateTime + ")"
+}
 
 const createNewSocket = () => {
   if (socket !== undefined) {
@@ -1590,6 +1617,58 @@ if (typeof WebSocket == "undefined") {
 
 <style lang="scss">
 @import "@/assets/scss/index.scss";
+
+// values are default one from jv-light template
+.my-awesome-json-theme {
+  background: #red;
+  white-space: nowrap;
+  color: #525252;
+  font-size: 14px;
+  font-family: Consolas, Menlo, Courier, monospace;
+
+  .jv-ellipsis {
+    color: #999;
+    background-color: #eee;
+    display: inline-block;
+    line-height: 0.9;
+    font-size: 0.9em;
+    padding: 0px 4px 2px 4px;
+    border-radius: 3px;
+    vertical-align: 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .jv-button { color: #49b3ff }
+  .jv-key { color: #111111 }
+  .jv-item {
+    &.jv-array { color: #111111 }
+    &.jv-boolean { color: #fc1e70 }
+    &.jv-function { color: #067bca }
+    &.jv-number { color: #fc1e70 }
+    &.jv-number-float { color: #fc1e70 }
+    &.jv-number-integer { color: #fc1e70 }
+    &.jv-object { color: #111111 }
+    &.jv-undefined { color: #e08331 }
+    &.jv-string {
+      color: #42b983;
+      word-break: break-word;
+      white-space: normal;
+    }
+  }
+  .jv-code {
+    .jv-toggle {
+      &:before {
+        padding: 0px 2px;
+        border-radius: 2px;
+      }
+      &:hover {
+        &:before {
+          background: #eee;
+        }
+      }
+    }
+  }
+}
 
 .el-table .warning-row {
   // --el-table-tr-bg-color: var(--el-color-warning-light-9);
