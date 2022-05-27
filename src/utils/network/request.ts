@@ -1,6 +1,7 @@
 import axios from "axios";
 import { ElLoading, ElMessage } from "element-plus";
 import { useI18n } from "vue-i18n";
+import storage from '@/utils/storage/index'
 import NProgress from "nprogress";
 
 const text = "loading";
@@ -52,7 +53,8 @@ export function request(method, url, info, config) {
       // showLoading();
       NProgress.start();
       // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token，不用每次请求都手动添加了
-      const token = window.localStorage.getItem("token");
+      // const token = window.localStorage.getItem("token");
+      const token = storage.getCsrfToken()
       token && (config.headers.Authorization = token);
       if (config.method === "POST") {
         config.data = JSON.stringify(config.data);

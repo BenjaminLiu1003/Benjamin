@@ -115,10 +115,10 @@ const handleLogin = () => {
         },
         function failHandler() {
           ElMessage({
-            type: 'error',
+            type: "error",
             grouping: true,
             message: response.desc,
-          })
+          });
         },
         function nextHandler() {
           //

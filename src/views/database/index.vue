@@ -1,5 +1,6 @@
 <template>
-  <div style="position:relative">
+  <div id="container1"
+       style="position:relative">
     <el-menu :default-active="activeSelection"
              mode="horizontal"
              background-color="black"
@@ -10,21 +11,22 @@
                     style="background-color: rgba(0, 0, 0, 0.1) !important">
         Overview
       </el-menu-item>
+
+      <el-sub-menu index="project">
+        <template #title>Project</template>
+        <el-menu-item v-for="(project, index) in projects"
+                      :key="index"
+                      :index="project.name">
+          {{ project.name }}
+        </el-menu-item>
+      </el-sub-menu>
+
       <el-sub-menu index="host">
         <template #title>Host</template>
         <el-menu-item v-for="(host, index) in hosts"
                       :key="index"
                       :index="host.name">
           {{ host.name }}
-        </el-menu-item>
-      </el-sub-menu>
-
-      <el-sub-menu index="strategy">
-        <template #title>Project</template>
-        <el-menu-item v-for="(project, index) in projects"
-                      :key="index"
-                      :index="project.name">
-          {{ project.name }}
         </el-menu-item>
       </el-sub-menu>
 
@@ -129,30 +131,36 @@
     </div>
   </div> -->
   <el-container style="height:100%;">
-    <el-main>
+    <el-main class="scroll">
       <el-row :gutter="5"
-              v-for="row in rows"
+              v-for="row in Math.ceil(programs.length / settings.grid.cols)"
               :key="row"
-              style="margin-top:0px">
-        <el-col :span="1"
-                v-for="col in cols"
+              style="margin-top:0px"
+              :style="{height: settings.grid.height + 'px'}">
+        <el-col :span="24 / settings.grid.cols"
+                v-for="col in settings.grid.cols"
                 :key="col"
                 style="padding: 0px">
-          <el-popover v-if="(row - 1) * cols + col - 1 < programs.length"
+          <el-popover v-if="(row - 1) * settings.grid.cols + col - 1 < programs.length"
                       :width="800"
                       trigger="hover"
-                      :show-after="300">
+                      :show-after="300"
+                      :popper-options="{ placement: 'bottom', modifiers: [{name:'offset', options: { offset: [0, 8]}}] }"
+                      :fallback-placements="['bottom', 'top', 'right', 'left']">
+            <!-- :append-to_body="false" -->
             <!-- popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"> -->
             <template #reference>
               <div class="thumbnail-box content"
-                   :class="programs[(row - 1) * cols + col - 1].state"
-                   @mouseenter="enterBox((row - 1) * cols + col - 1)"
-                   @mouseleave="leaveBox">
-                {{ programs[(row - 1) * cols + col - 1].program }}
+                   :class="programs[(row - 1) * settings.grid.cols + col - 1].state + ((row - 1) * settings.grid.cols + col - 1 == activePgIdx ? ' hover' : '')"
+                   @mouseenter="enterBox((row - 1) * settings.grid.cols + col - 1)"
+                   @mouseleave="leaveBox"
+                   :style="{minHeight: settings.grid.height + 'px', fontSize: settings.grid.fontSize + 'px'}">
+                {{ programs[(row - 1) * settings.grid.cols + col - 1].program }}
               </div>
             </template>
             <template #default>
-              <div style="max-height:780px;overflow: auto;">
+              <div class="scroll"
+                   style="max-height:780px;overflow: auto;">
                 <el-descriptions title="Program Details"
                                  direction="vertical"
                                  :column="10"
@@ -162,40 +170,40 @@
                                         :span="3"
                                         align="center"
                                         label-align="center">
-                    {{ programs[(row - 1) * cols + col - 1].program }}
+                    {{ programs[(row - 1) * settings.grid.cols + col - 1].program }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Host"
                                         :span="2"
                                         align="center"
                                         label-align="center">
-                    {{ programs[(row - 1) * cols + col - 1].host }}
+                    {{ programs[(row - 1) * settings.grid.cols + col - 1].host }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Pid"
                                         :width="85"
                                         align="center"
                                         label-align="center">
-                    {{ programs[(row - 1) * cols + col - 1].pid }}
+                    {{ programs[(row - 1) * settings.grid.cols + col - 1].pid }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Reboots"
                                         :width="85"
                                         align="center"
                                         label-align="center">
                     <el-tag type="danger">
-                      {{ programs[(row - 1) * cols + col - 1].reboots }}
+                      {{ programs[(row - 1) * settings.grid.cols + col - 1].reboots }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Since"
                                         :span="3"
                                         align="center"
                                         label-align="center">
-                    {{ formatTime(1000 * programs[(row - 1) * cols + col - 1].startTime, "yyyy-MM-dd HH:mm:ss") }}
+                    {{ formatTime(1000 * programs[(row - 1) * settings.grid.cols + col - 1].startTime, "yyyy-MM-dd HH:mm:ss") }}
                   </el-descriptions-item>
                   <el-descriptions-item label="Orders"
                                         :width="85"
                                         align="center"
                                         label-align="center">
                     <el-tag type="success">
-                      {{ getOrders((row - 1) * cols + col - 1) }}
+                      {{ getOrders((row - 1) * settings.grid.cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Trades"
@@ -203,7 +211,7 @@
                                         align="center"
                                         label-align="center">
                     <el-tag type="success">
-                      {{ getTrades((row - 1) * cols + col - 1) }}
+                      {{ getTrades((row - 1) * settings.grid.cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Fails"
@@ -211,7 +219,7 @@
                                         align="center"
                                         label-align="center">
                     <el-tag type="danger">
-                      {{ getFails((row - 1) * cols + col - 1) }}
+                      {{ getFails((row - 1) * settings.grid.cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Symbols"
@@ -219,7 +227,7 @@
                                         align="center"
                                         label-align="center">
                     <el-tag type="success">
-                      {{ getSymbols((row - 1) * cols + col - 1) }}
+                      {{ getSymbols((row - 1) * settings.grid.cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="Engaged"
@@ -227,7 +235,7 @@
                                         align="center"
                                         label-align="center">
                     <el-tag type="success">
-                      {{ getEngaged((row - 1) * cols + col - 1) }}
+                      {{ getEngaged((row - 1) * settings.grid.cols + col - 1) }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="CurrGMV / MaxGMV"
@@ -236,12 +244,12 @@
                                         label-align="center">
                     <el-progress :text-inside="true"
                                  :stroke-width="24"
-                                 :percentage="getGMVPercentage((row - 1) * cols + col - 1)"
-                                 :format="formatGMV((row - 1) * cols + col - 1)" />
+                                 :percentage="getGMVPercentage((row - 1) * settings.grid.cols + col - 1)"
+                                 :format="formatGMV((row - 1) * settings.grid.cols + col - 1)" />
                   </el-descriptions-item>
-                  <el-descriptions-item :label="formatComponentTitle((row - 1) * cols + col - 1)"
+                  <el-descriptions-item :label="formatComponentTitle((row - 1) * settings.grid.cols + col - 1)"
                                         :span="10">
-                    <json-viewer :value="programs[(row - 1) * cols + col - 1]['modules']"
+                    <json-viewer :value="programs[(row - 1) * settings.grid.cols + col - 1]['modules']"
                                  sort
                                  copyable
                                  theme="my-awesome-json-theme"></json-viewer>
@@ -326,8 +334,22 @@
         </el-col>
       </el-row>
     </el-main>
-    <el-aside width="600px">
-      <el-card v-if="0"
+    <el-aside width="640px">
+      <el-carousel style="height:15%" class="scroll">
+        <el-carousel-item>
+          <el-progress v-for="(summary, index) in projectsSummary" :key="index" type="dashboard" :percentage="summary['progress']" :color="summaryColors">
+            <template #default="{ percentage }">
+              <span style="display:block; margin-top:10px;font-size:28px">
+                  {{ percentage }}%
+              </span>
+              <span style="display:block;margin-top:10px;font-size:12px;">
+                  {{ summary['project'] }}
+              </span>
+            </template>
+          </el-progress>
+        </el-carousel-item>
+      </el-carousel>
+      <!-- <el-card v-if="0"
                style="height:0px">
         <div v-if="activePgIdx"
              class="clearfix">
@@ -366,14 +388,14 @@
                          :percentage="programs[activePgIdx]['modules'][1].currGMV * 100 / programs[activePgIdx]['modules'][1].maxGMV"
                          :format="formatGMV(programs[activePgIdx]['modules'][1].currGMV, programs[activePgIdx]['modules'][1].maxGMV)"
                          status="success"></el-progress>
-            <!-- <el-badge :value="programs[activePgIdx]['modules'][1].currGMV"
+            <el-badge :value="programs[activePgIdx]['modules'][1].currGMV"
                       :max="20000000"
                       class="item"
                       type="primary" />
             <el-badge :value="programs[activePgIdx]['modules'][1].maxGMV"
                       :max="20000000"
                       class="item"
-                      type="primary" /> -->
+                      type="primary" />
           </el-descriptions-item>
           <el-descriptions-item label="Symbols"
                                 label-align="center"
@@ -383,20 +405,20 @@
                          :percentage="programs[activePgIdx]['modules'][2].engaged * 100 / programs[activePgIdx]['modules'][2].symbols"
                          :format="formatSymbols(programs[activePgIdx]['modules'][2].symbols, programs[activePgIdx]['modules'][2].engaged)"
                          status="success"></el-progress>
-            <!-- <el-badge :value="programs[activePgIdx]['modules'][2].symbols"
+            <el-badge :value="programs[activePgIdx]['modules'][2].symbols"
                       :max="10000000"
                       class="item"
                       type="primary" />
             <el-badge :value="programs[activePgIdx]['modules'][2].engaged"
                       :max="10000000"
                       class="item"
-                      type="primary" /> -->
+                      type="primary" />
           </el-descriptions-item>
         </el-descriptions>
-      </el-card>
-      <el-card v-scrollBottom
+      </el-card> -->
+      <div v-scrollBottom
            class="scroll"
-           style="height:100%;background-color:black;">
+           style="height:85%;background-color:black;">
         <div v-for="(log, index) in logs"
              :key="index"
              class="scroll-item"
@@ -408,7 +430,7 @@
             {{ log.text }}
           </p>
         </div>
-      </el-card>
+      </div>
       <!-- <el-scrollbar ref="logContainer"
                     height="67%">
         <el-timeline>
@@ -452,40 +474,76 @@
 
   <el-dialog v-model="settingVisible"
              title="Settings"
-             width="50%"
-             draggable>
+             width="40%">
     <template #default>
       <el-form ref="settings_form"
                :model="settings"
                label-width="auto"
                label-position="left"
                size="default">
-        <el-form-item label="Hosts">
-          <el-checkbox-group v-model="settings.hosts"
-          @change="changeFilter">
-            <el-checkbox-button v-for="(host, index) in hosts"
-                                :key="index"
-                                :label="host.name"
-                                name="type" />
-          </el-checkbox-group>
-        </el-form-item>
+
         <el-form-item label="Projects">
           <el-checkbox-group v-model="settings.projects"
-          @change="changeFilter">
+                             @change="changeProjectsFilter">
             <el-checkbox-button v-for="(project, index) in projects"
                                 :key="index"
                                 :label="project.name"
                                 name="type" />
           </el-checkbox-group>
+          <el-checkbox v-model="settings.selectAllProjects"
+                       :indeterminate="settings.indeterminateProjects"
+                       @change="checkAllProjects">
+            Select all projects
+          </el-checkbox>
+        </el-form-item>
+
+        <el-form-item label="Hosts">
+          <el-checkbox-group v-model="settings.hosts"
+                             @change="changeHostsFilter">
+            <el-checkbox-button v-for="(host, index) in hosts"
+                                :key="index"
+                                :label="host.name"
+                                name="type" />
+          </el-checkbox-group>
+          <el-checkbox v-model="settings.selectAllHosts"
+                       :indeterminate="settings.indeterminateHosts"
+                       @change="checkAllHosts">
+            Select all hosts
+          </el-checkbox>
+        </el-form-item>
+
+        <el-form-item label="Grid">
+          <span style="margin-right:10px">Columns</span>
+          <el-radio-group v-model="settings.grid.cols"
+                          size="medium">
+            <el-radio-button v-for="value in colsSelections"
+                             :key="value"
+                             :label="value" />
+          </el-radio-group>
+          <div style="margin-top:10px">
+            <span style="margin-right:24px;">Height</span>
+            <el-input-number v-model="settings.grid.height"
+                             :min="25"
+                             :max="80"
+                             size="small" />
+            <span style="margin-left:10px;margin-right:10px;">Font size</span>
+            <el-input-number v-model="settings.grid.fontSize"
+                             :min="6"
+                             :max="12"
+                             size="small" />
+          </div>
         </el-form-item>
 
         <el-form-item label="Color">
           <div style="display: flex;align-items: center;margin-bottom: 16px;">
-            <span class="demonstration" style="margin-right: 10px;">Normal</span>
+            <span class="demonstration"
+                  style="margin-right: 10px;">INFO</span>
             <el-color-picker v-model="normalColor" />
-            <span class="demonstration" style="margin-left:10px;margin-right:10px;">Warning</span>
+            <span class="demonstration"
+                  style="margin-left:10px;margin-right:10px;">WARN</span>
             <el-color-picker v-model="warningColor" />
-            <span class="demonstration" style="margin-left:10px;margin-right:10px;">Alert</span>
+            <span class="demonstration"
+                  style="margin-left:10px;margin-right:10px;">ERROR</span>
             <el-color-picker v-model="alertColor" />
           </div>
         </el-form-item>
@@ -499,17 +557,17 @@
                   :multiple="true"
                   :options="selections" /> -->
     </template>
-    <!-- <template #footer>
+    <template #footer>
       <span class="dialog-footer">
-        <el-button @click="settingVisible=false">
+        <!-- <el-button @click="settingVisible=false">
           Cancel
-        </el-button>
+        </el-button> -->
         <el-button type="primary"
-                   @click="settingVisible=false">
-          Confirm
+                   @click="handleSaveSettings">
+          Save
         </el-button>
       </span>
-    </template> -->
+    </template>
   </el-dialog>
 </template>
 
@@ -850,21 +908,99 @@ let host = ref(null);
 //   },
 // ];
 
+let projectsSummary = ref([
+  {
+    'project': 'brazil',
+    'progress': 10,
+  },
+  {
+    'project': 'japan',
+    'progress': 80,
+  },
+  {
+    'project': 'preopen',
+    'progress': 66,
+  },
+  {
+    'project': 'useqau',
+    'progress': 99,
+  },
+  {
+    'project': 'useqct',
+    'progress': 36, 
+  },
+]);
+const summaryColors = ref([
+  { color: alertColor, percentage: 20 },
+  { color: warningColor, percentage: 40 },
+  { color: normalColor, percentage: 60 },
+  { color: normalColor, percentage: 80 },
+  { color: normalColor, percentage: 100 },
+])
+
 let projects = ref([]);
 let hosts = ref([]);
 let socket, socketUrl;
 const settings = reactive({
   hosts: [],
   projects: [],
+  selectAllHosts: false,
+  selectAllProjects: false,
+  indeterminateHosts: false,
+  indeterminateProjects: false,
+  grid: {
+    cols: 24,
+    height: 25,
+    fontSize: 6,
+    infoColor: 'green',
+    warnColor: 'yellow',
+    errorColor: 'red',
+  },
 });
 
-const changeFilter = (value) => {
-      socketUrl =
-      process.env.VUE_APP_WEBSOCKET_URL +
-      "quoter?" +
-      JSON.stringify(settings);
-      createNewSocket();
-}
+const filterProgramsViaHostsAndProjects = () => {
+  socketUrl =
+    process.env.VUE_APP_WEBSOCKET_URL +
+    "quoter?" +
+    JSON.stringify({ hosts: settings.hosts, projects: settings.projects });
+  createNewSocket();
+};
+
+const changeProjectsFilter = (value) => {
+  settings.selectAllProjects = value.length === projects.value.length;
+  settings.indeterminateProjects =
+    value.length > 0 && value.length < projects.value.length;
+  filterProgramsViaHostsAndProjects();
+};
+
+const changeHostsFilter = (value) => {
+  settings.selectAllHosts = value.length === hosts.value.length;
+  settings.indeterminateHosts =
+    value.length > 0 && value.length < hosts.value.length;
+  filterProgramsViaHostsAndProjects();
+};
+
+const checkAllProjects = (value) => {
+  settings.projects = [];
+  if (value) {
+    for (var project of projects.value) {
+      settings.projects.push(project.name);
+    }
+  }
+  settings.indeterminateProjects = false;
+  filterProgramsViaHostsAndProjects();
+};
+
+const checkAllHosts = (value) => {
+  settings.hosts = [];
+  if (value) {
+    for (var host of hosts.value) {
+      settings.hosts.push(host.name);
+    }
+  }
+  settings.indeterminateHosts = false;
+  filterProgramsViaHostsAndProjects();
+};
 
 let onlyShowAlert = ref(false);
 let actualPrograms = ref([]); // the stored whole programs
@@ -962,8 +1098,12 @@ const getGMVPercentage = (index) => {
 };
 
 const formatComponentTitle = (index) => {
-  return "All Components Information (updated since " + programs.value[index].updateTime + ")"
-}
+  return (
+    "All Components Information (updated since " +
+    programs.value[index].updateTime +
+    ")"
+  );
+};
 
 const createNewSocket = () => {
   if (socket !== undefined) {
@@ -1008,7 +1148,7 @@ const handleSelect = (key: string, keyPath: string[]) => {
       process.env.VUE_APP_WEBSOCKET_URL +
       "quoter?" +
       JSON.stringify({ hosts: [key] });
-  } else if (keyPath[0] == "strategy") {
+  } else if (keyPath[0] == "project") {
     isGrouping.value = false;
     socketUrl =
       process.env.VUE_APP_WEBSOCKET_URL +
@@ -1061,7 +1201,7 @@ watch(onlyShowAlert, (newValue, oldValue) => {
   } else {
     programs.value = actualPrograms.value;
   }
-  rows.value = Math.ceil(programs.value.length / cols.value);
+  // rows.value = Math.ceil(programs.value.length / cols.value);
 });
 
 watch(activeGroupIdx, (newValue, oldValue) => {
@@ -1213,8 +1353,10 @@ const leaveBox = () => {
 };
 
 const logContainer = ref(null);
-let rows = ref(0);
-let cols = ref(24);
+// let rows = ref(0);
+// let cols = ref(24);
+const colsSelections = ref([1, 2, 4, 6, 8, 12, 24]);
+// let gridHeight = ref(25);
 let visible = ref(false);
 // let queryTimer = ref(null)
 let query = {
@@ -1261,7 +1403,7 @@ const parseSocketMsg = (msg) => {
         projects.value = [];
         hosts.value = [];
         logs.value = [];
-        rows.value = 0;
+        // rows.value = 0;
         activePgIdx.value = null;
         activeGroupIdx.value = null;
 
@@ -1269,16 +1411,16 @@ const parseSocketMsg = (msg) => {
           for (var log of data.logs) {
             if (log.level == "0") {
               // var color = "color: " + normalColor.value;// "color: #67c23a"; // success
-              var state = "normal"
+              var state = "normal";
             } else if (log.level == "1") {
               // color = "color: " + warningColor.value;// "color: #e6a23c"; // warning
-              state = "warning"
+              state = "warning";
             } else if (log.level == "2") {
               // color = "color: " + alertColor.value;// "color: #ff1602"; // alert #f56c6c #f20c00
-              state = "alert"
+              state = "alert";
             } else {
               // color = "color: #909399";
-              state = "normal"
+              state = "normal";
             }
             logs.value.push({
               program_id: log.program,
@@ -1384,10 +1526,6 @@ const parseSocketMsg = (msg) => {
         }
 
         now = new Date();
-        console.log("oldState:", oldState);
-        console.log("newState:", newState);
-        console.log("last:", lastStateTime);
-        console.log("now:", now);
         if (oldState == "alert" && newState == "normal") {
           if (now.getTime() - lastStateTime > 30 * 1000) {
             actualPrograms.value[idx]["state"] = newState;
@@ -1402,16 +1540,16 @@ const parseSocketMsg = (msg) => {
         if (program["log"] && JSON.stringify(program["log"]) !== "{}") {
           if (program["log"]["level"] == "0") {
             // color = "color: #67c23a"; // success
-            state = "normal"
+            state = "normal";
           } else if (program["log"]["level"] == "1") {
             // color = "color: #e6a23c"; // warning
-            state = "warning"
+            state = "warning";
           } else if (program["log"]["level"] == "2") {
             // color = "color: #ff1602"; // alert #f56c6c #f20c00
-            state = "alert"
+            state = "alert";
           } else {
             // color = "color: #909399";
-            state = "normal"
+            state = "normal";
           }
           logs.value.push({
             program_id: program.program_id,
@@ -1537,7 +1675,7 @@ const parseSocketMsg = (msg) => {
           programs.value = actualPrograms.value;
         }
       }
-      rows.value = Math.ceil(programs.value.length / cols.value);
+      // rows.value = Math.ceil(programs.value.length / cols.value);
     },
     function failHandler() {
       ElMessage.error("failure" + ":" + response.msg);
@@ -1599,20 +1737,92 @@ const showDrawer = () => {
 // queryTimer.value = setInterval(startQueryStatus, 10000)
 
 // startQueryStatus()
-
-if (typeof WebSocket == "undefined") {
-  ElMessage({
-    message: "Websocket is unsupported, please use Chrome",
-    grouping: true,
-    type: "error",
-  });
-} else {
-  // const socketUrl = 'ws://localhost:6919/wx/?level=all&key=all'
-  // socketUrl = "ws://7.151.16.99:6919/quoter/all/all";
-  // socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter/all/all"
-  socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
-  createNewSocket();
+const handleSaveSettings = () => {
+  const data = {
+    "info_color": normalColor.value,
+		"warn_color": warningColor.value,
+    "error_color": alertColor.value,
+		"grid_cols": settings.grid.cols,
+    "grid_height": settings.grid.height,
+    "grid_font_size": settings.grid.fontSize,
+    "hosts": settings.hosts,
+    "projects": settings.projects,
+	}
+  http.post("settings/all", data).then((response) => {
+    dealResponseCode(response, () => {
+      ElMessage({
+        message: "Settings saved",
+        grouping: true,
+        type: 'success',
+      })
+    }, () => {
+      ElMessage({
+        message: 'Fail to save settings',
+        grouping: true,
+        type: 'error',
+      })
+    }, () => {
+      //
+    })
+  })
 }
+
+const getUserSettings = () => {
+  http.get("settings/all").then((response) => {
+    dealResponseCode(
+      response,
+      () => {
+        console.log(response.data.settings);
+        settings.grid.cols = response.data.settings.grid_cols;
+        settings.grid.height = response.data.settings.grid_height;
+        settings.grid.fontSize = response.data.settings.grid_font_size;
+        
+        normalColor.value = response.data.settings.info_color;
+        warningColor.value = response.data.settings.warn_color;
+        alertColor.value = response.data.settings.error_color;
+
+        console.log('normal:', normalColor.value)
+        console.log('warning:', warningColor.value)
+        console.log('alert:', alertColor.value)
+
+        for (var host of response.data.settings.hosts) {
+          settings.hosts.push(host.name);
+        }
+        for (var project of response.data.settings.projects) {
+          settings.projects.push(project.name);
+        }
+
+        if (typeof WebSocket == "undefined") {
+          ElMessage({
+            message: "Websocket is unsupported, please use Chrome",
+            grouping: true,
+            type: "error",
+          });
+        } else {
+          socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+          createNewSocket();
+        }
+      },
+      () => {
+        ElMessage({
+          message: "Fail to get settings for current user",
+          grouping: true,
+          type: "error",
+        });
+        setTimeout(() => {
+          getUserSettings();
+        }, 2000);
+      },
+      () => {
+        //
+      }
+    );
+  });
+};
+
+getUserSettings();
+// socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+// createNewSocket();
 </script>
 
 <style lang="scss">
@@ -1620,7 +1830,7 @@ if (typeof WebSocket == "undefined") {
 
 // values are default one from jv-light template
 .my-awesome-json-theme {
-  background: #red;
+  background: transparent;
   white-space: nowrap;
   color: #525252;
   font-size: 14px;
@@ -1638,17 +1848,37 @@ if (typeof WebSocket == "undefined") {
     cursor: pointer;
     user-select: none;
   }
-  .jv-button { color: #49b3ff }
-  .jv-key { color: #111111 }
+  .jv-button {
+    color: #49b3ff;
+  }
+  .jv-key {
+    color: #111111;
+  }
   .jv-item {
-    &.jv-array { color: #111111 }
-    &.jv-boolean { color: #fc1e70 }
-    &.jv-function { color: #067bca }
-    &.jv-number { color: #fc1e70 }
-    &.jv-number-float { color: #fc1e70 }
-    &.jv-number-integer { color: #fc1e70 }
-    &.jv-object { color: #111111 }
-    &.jv-undefined { color: #e08331 }
+    &.jv-array {
+      color: #111111;
+    }
+    &.jv-boolean {
+      color: #fc1e70;
+    }
+    &.jv-function {
+      color: #067bca;
+    }
+    &.jv-number {
+      color: #fc1e70;
+    }
+    &.jv-number-float {
+      color: #fc1e70;
+    }
+    &.jv-number-integer {
+      color: #fc1e70;
+    }
+    &.jv-object {
+      color: #111111;
+    }
+    &.jv-undefined {
+      color: #e08331;
+    }
     &.jv-string {
       color: #42b983;
       word-break: break-word;
@@ -1694,11 +1924,102 @@ if (typeof WebSocket == "undefined") {
 .scroll {
   // height: 600px;
   overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .scroll-item {
     // height: 200px;
     font-size: 12px;
     margin-bottom: 10px;
   }
+}
+
+// .hover {
+//   position: relative;
+//   border: 2px solid white;
+//   border-radius: 5px;
+//   transition: all 0.3s;
+// }
+
+// @keyframes div5Ani {
+//   0%,
+//   100% {
+//     clip-path: inset(0 0 98% 0);
+//   }
+
+//   25% {
+//     clip-path: inset(0 98% 0 0);
+//   }
+//   50% {
+//     clip-path: inset(98% 0 0 0);
+//   }
+//   75% {
+//     clip-path: inset(0 0 0 98%);
+//   }
+// }
+
+// .hover::before {
+//   content: "";
+//   position: absolute;
+//   top: -10px;
+//   left: -10px;
+//   right: -10px;
+//   bottom: -10px;
+//   border: 2px solid white;
+//   border-radius: 5px;
+//   animation: div5Ani 3s infinite linear;
+// }
+
+// .hover::after {
+//   content: "";
+//   position: absolute;
+//   top: -10px;
+//   left: -10px;
+//   right: -10px;
+//   bottom: -10px;
+//   border: 2px solid #ffd700;
+//   border-radius: 5px;
+//   animation: div5Ani 3s infinite linear;
+// }
+
+// .hover::after {
+//   animation: div5Ani 3s infinite -1.5s linear;
+// }
+
+// @keyframes animated-border {
+//   0% {
+//     box-shadow: 0 0 0 0 rgba(255,255,255,0.8);
+//   }
+//   100% {
+//      box-shadow: 0 0 0 20px rgba(255,255,255,0);
+//   }
+// }
+
+// .hover{
+//   animation: animated-border 1.5s infinite;
+//   line-height: 30px;
+//   font-weight: bold;
+//   color: white;
+//   border: 2px solid;
+//   border-radius: 10px;
+//   padding: 15px;
+// }
+
+@keyframes animated-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+  }
+}
+
+.hover {
+  outline: 2px solid white;
+  outline-offset: -2px;
+  animation: animated-border 1.5s infinite;
 }
 
 .thumbnail-box {
@@ -1719,10 +2040,79 @@ if (typeof WebSocket == "undefined") {
     align-items: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    height: 55px;
+    // height: 55px;
+    // min-height: v-bind(`${gridHeight}px`);
     // margin: 6px;
     padding: 10%;
     text-overflow: ellipsis;
+
+    // @keyframes animated-border {
+    //   0% {
+    //     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+    //   }
+    //   100% {
+    //     box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+    //   }
+    // }
+
+    // &.hover {
+    //   // border: 2px white inset;
+    //   outline: 2px solid white;
+    //   outline-offset: -2px;
+    //   animation: animated-border 1.5s infinite;
+    //   padding: 15px;
+    // }
+    // &.hover {
+    //   position: relative;
+    //   border: 2px solid white;
+    //   border-radius: 5px;
+    //   transition: all 0.3s;
+    // }
+
+    // @keyframes div5Ani {
+    //   0%,
+    //   100% {
+    //     clip-path: inset(0 0 98% 0);
+    //   }
+
+    //   25% {
+    //     clip-path: inset(0 98% 0 0);
+    //   }
+    //   50% {
+    //     clip-path: inset(98% 0 0 0);
+    //   }
+    //   75% {
+    //     clip-path: inset(0 0 0 98%);
+    //   }
+    // }
+
+    // &.hover::before {
+    //   content: "";
+    //   position: absolute;
+    //   top: -10px;
+    //   left: -10px;
+    //   right: -10px;
+    //   bottom: -10px;
+    //   border: 2px solid white;
+    //   border-radius: 5px;
+    //   animation: div5Ani 3s infinite linear;
+    // }
+
+    // &.hover::after {
+    //   content: "";
+    //   position: absolute;
+    //   top: -10px;
+    //   left: -10px;
+    //   right: -10px;
+    //   bottom: -10px;
+    //   border: 2px solid #ffd700;
+    //   border-radius: 5px;
+    //   animation: div5Ani 3s infinite linear;
+    // }
+
+    // &.hover::after {
+    //   animation: div5Ani 3s infinite -1.5s linear;
+    // }
   }
 
   &.opacity {
@@ -1730,7 +2120,7 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.normal {
-    background-color: v-bind(normalColor);//#006400; //#42b983;
+    background-color: v-bind(normalColor); //#006400; //#42b983;
   }
 
   &.success {
@@ -1738,11 +2128,11 @@ if (typeof WebSocket == "undefined") {
   }
 
   &.warning {
-    background-color: v-bind(warningColor);//#e6a23c;
+    background-color: v-bind(warningColor); //#e6a23c;
   }
 
   &.alert {
-    background-color: v-bind(alertColor);//#ff1602; //#f20c00; //#f56c6c;
+    background-color: v-bind(alertColor); //#ff1602; //#f20c00; //#f56c6c;
   }
 
   &.dead {
@@ -1751,27 +2141,26 @@ if (typeof WebSocket == "undefined") {
 }
 
 .scroll-item {
-&.normal {
-  color: v-bind(normalColor);//#006400; //#42b983;
-}
+  &.normal {
+    color: v-bind(normalColor); //#006400; //#42b983;
+  }
 
-&.success {
-  color: #67c23a;
-}
+  &.success {
+    color: v-bind(normalColor); // #67c23a;
+  }
 
-&.warning {
-  color: v-bind(warningColor);//#e6a23c;
-}
+  &.warning {
+    color: v-bind(warningColor); //#e6a23c;
+  }
 
-&.alert {
-  color: v-bind(alertColor);//#ff1602; //#f20c00; //#f56c6c;
-}
+  &.alert {
+    color: v-bind(alertColor); //#ff1602; //#f20c00; //#f56c6c;
+  }
 
-&.dead {
-  color: #909399;
+  &.dead {
+    color: #909399;
+  }
 }
-}
-
 
 .log-box {
   font-size: 16px;
