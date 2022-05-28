@@ -80,7 +80,7 @@ export default {
 		return storage.removeItem(UserNameKey)
 	},
 
-	logout: function() {
-		return this.removeCsrfToken() && this.removeLogId() && this.removeUserId() && this.removeUserName()
-	}
+	// logout: function() {
+	// 	return this.removeCsrfToken() && this.removeLogId() && this.removeUserId() && this.removeUserName()
+	// }
 }

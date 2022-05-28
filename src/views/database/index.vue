@@ -1820,9 +1820,9 @@ const getUserSettings = () => {
   });
 };
 
-// getUserSettings();
-socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
-createNewSocket();
+getUserSettings();
+// socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+// createNewSocket();
 </script>
 
 <style lang="scss">
