@@ -335,15 +335,20 @@
       </el-row>
     </el-main>
     <el-aside width="640px">
-      <el-carousel style="height:15%" class="scroll">
+      <el-carousel style="height:15%"
+                   class="scroll">
         <el-carousel-item>
-          <el-progress v-for="(summary, index) in projectsSummary" :key="index" type="dashboard" :percentage="summary['progress']" :color="summaryColors">
+          <el-progress v-for="(summary, index) in projectsSummary"
+                       :key="index"
+                       type="dashboard"
+                       :percentage="summary['progress']"
+                       :color="summaryColors">
             <template #default="{ percentage }">
               <span style="display:block; margin-top:10px;font-size:28px">
-                  {{ percentage }}%
+                {{ percentage }}%
               </span>
               <span style="display:block;margin-top:10px;font-size:12px;">
-                  {{ summary['project'] }}
+                {{ summary['project'] }}
               </span>
             </template>
           </el-progress>
@@ -910,24 +915,24 @@ let host = ref(null);
 
 let projectsSummary = ref([
   {
-    'project': 'brazil',
-    'progress': 10,
+    project: "brazil",
+    progress: 10,
   },
   {
-    'project': 'japan',
-    'progress': 80,
+    project: "japan",
+    progress: 80,
   },
   {
-    'project': 'preopen',
-    'progress': 66,
+    project: "preopen",
+    progress: 66,
   },
   {
-    'project': 'useqau',
-    'progress': 99,
+    project: "useqau",
+    progress: 99,
   },
   {
-    'project': 'useqct',
-    'progress': 36, 
+    project: "useqct",
+    progress: 36,
   },
 ]);
 const summaryColors = ref([
@@ -936,7 +941,7 @@ const summaryColors = ref([
   { color: normalColor, percentage: 60 },
   { color: normalColor, percentage: 80 },
   { color: normalColor, percentage: 100 },
-])
+]);
 
 let projects = ref([]);
 let hosts = ref([]);
@@ -952,16 +957,18 @@ const settings = reactive({
     cols: 24,
     height: 25,
     fontSize: 6,
-    infoColor: 'green',
-    warnColor: 'yellow',
-    errorColor: 'red',
+    infoColor: "green",
+    warnColor: "yellow",
+    errorColor: "red",
   },
 });
 
 const filterProgramsViaHostsAndProjects = () => {
   socketUrl =
-    process.env.VUE_APP_WEBSOCKET_URL +
-    "quoter?" +
+    "ws:" +
+    location.host +
+    process.env.VUE_APP_SOCKET_API_URL +
+    "?" +
     JSON.stringify({ hosts: settings.hosts, projects: settings.projects });
   createNewSocket();
 };
@@ -1141,18 +1148,22 @@ const handleSelect = (key: string, keyPath: string[]) => {
 
   if (keyPath[0] == "all") {
     isGrouping.value = false;
-    socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+    socketUrl = "ws:" + location.host + process.env.VUE_APP_SOCKET_API_URL;
   } else if (keyPath[0] == "host") {
     isGrouping.value = false;
     socketUrl =
-      process.env.VUE_APP_WEBSOCKET_URL +
-      "quoter?" +
+      "ws:" +
+      location.host +
+      process.env.VUE_APP_SOCKET_API_URL +
+      "?" +
       JSON.stringify({ hosts: [key] });
   } else if (keyPath[0] == "project") {
     isGrouping.value = false;
     socketUrl =
-      process.env.VUE_APP_WEBSOCKET_URL +
-      "quoter?" +
+      "ws:" +
+      location.host +
+      process.env.VUE_APP_SOCKET_API_URL +
+      "?" +
       JSON.stringify({ projects: [key] });
   }
 
@@ -1739,33 +1750,38 @@ const showDrawer = () => {
 // startQueryStatus()
 const handleSaveSettings = () => {
   const data = {
-    "info_color": normalColor.value,
-		"warn_color": warningColor.value,
-    "error_color": alertColor.value,
-		"grid_cols": settings.grid.cols,
-    "grid_height": settings.grid.height,
-    "grid_font_size": settings.grid.fontSize,
-    "hosts": settings.hosts,
-    "projects": settings.projects,
-	}
+    info_color: normalColor.value,
+    warn_color: warningColor.value,
+    error_color: alertColor.value,
+    grid_cols: settings.grid.cols,
+    grid_height: settings.grid.height,
+    grid_font_size: settings.grid.fontSize,
+    hosts: settings.hosts,
+    projects: settings.projects,
+  };
   http.post("settings/all", data).then((response) => {
-    dealResponseCode(response, () => {
-      ElMessage({
-        message: "Settings saved",
-        grouping: true,
-        type: 'success',
-      })
-    }, () => {
-      ElMessage({
-        message: 'Fail to save settings',
-        grouping: true,
-        type: 'error',
-      })
-    }, () => {
-      //
-    })
-  })
-}
+    dealResponseCode(
+      response,
+      () => {
+        ElMessage({
+          message: "Settings saved",
+          grouping: true,
+          type: "success",
+        });
+      },
+      () => {
+        ElMessage({
+          message: "Fail to save settings",
+          grouping: true,
+          type: "error",
+        });
+      },
+      () => {
+        //
+      }
+    );
+  });
+};
 
 const getUserSettings = () => {
   http.get("settings/all").then((response) => {
@@ -1776,14 +1792,14 @@ const getUserSettings = () => {
         settings.grid.cols = response.data.settings.grid_cols;
         settings.grid.height = response.data.settings.grid_height;
         settings.grid.fontSize = response.data.settings.grid_font_size;
-        
+
         normalColor.value = response.data.settings.info_color;
         warningColor.value = response.data.settings.warn_color;
         alertColor.value = response.data.settings.error_color;
 
-        console.log('normal:', normalColor.value)
-        console.log('warning:', warningColor.value)
-        console.log('alert:', alertColor.value)
+        console.log("normal:", normalColor.value);
+        console.log("warning:", warningColor.value);
+        console.log("alert:", alertColor.value);
 
         for (var host of response.data.settings.hosts) {
           settings.hosts.push(host.name);
@@ -1799,8 +1815,8 @@ const getUserSettings = () => {
             type: "error",
           });
         } else {
-          socketUrl = 'ws:' + location.host + process.env.VUE_APP_SOCKET_API_URL;
-          // socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+          socketUrl =
+            "ws:" + location.host + process.env.VUE_APP_SOCKET_API_URL;
           createNewSocket();
         }
       },
@@ -1822,8 +1838,6 @@ const getUserSettings = () => {
 };
 
 getUserSettings();
-// socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
-// createNewSocket();
 </script>
 
 <style lang="scss">
