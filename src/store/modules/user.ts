@@ -25,9 +25,8 @@ const user = {
       return new Promise((resolve, reject) => {
         login(username, userInfo.password)
           .then((response) => {
-            console.log("InSIDE STORE: ", response)
-            commit("SET_USER_ID", 1);
-            commit("SET_USER_NAME", username);
+            commit("SET_USER_ID", response.data.user_id);
+            commit("SET_USER_NAME", response.data.user_name);
             resolve(response);
           })
           .catch((error) => {

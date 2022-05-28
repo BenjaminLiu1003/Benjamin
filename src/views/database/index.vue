@@ -1799,7 +1799,8 @@ const getUserSettings = () => {
             type: "error",
           });
         } else {
-          socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
+          socketUrl = 'ws:' + location.host + process.env.VUE_APP_SOCKET_API_URL;
+          // socketUrl = process.env.VUE_APP_WEBSOCKET_URL + "quoter";
           createNewSocket();
         }
       },

@@ -8,6 +8,8 @@ const text = "loading";
 let loading;
 let requestCount = 0;
 
+console.log('windows:', window.location)
+
 const showLoading = () => {
   if (requestCount === 0 && !loading) {
     loading = ElLoading.service({
@@ -27,10 +29,10 @@ const hideLoading = () => {
 export function request(method, url, info, config) {
   // 创建axios的实例
   const instance = axios.create({
-    baseURL:
-      process.env.NODE_ENV == "production"
-        ? process.env.VUE_APP_API_URL_PROD
-        : process.env.VUE_APP_API_URL_DEV,
+    baseURL: process.env.VUE_APP_HTTP_API_URL,
+      // process.env.NODE_ENV == "production"
+      //   ? process.env.VUE_APP_API_URL_PROD
+      //   : process.env.VUE_APP_API_URL_DEV,
     timeout: 20000
   });
 

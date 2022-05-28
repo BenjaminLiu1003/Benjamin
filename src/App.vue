@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-console.log(process.env, 'process.env')
-console.log(process.env.VUE_APP_API_URL)
 </script>
 
 <style lang="scss" scoped>

@@ -15,15 +15,23 @@ module.exports = {
 		https: false, // 是否使用https协议
 		hotOnly: false, // 是否开启热更新
 		proxy: {
-			"/api": {
-				target: "http://7.151.16.99:6919/v1/",
-        // target: "http://192.168.0.120:6919/v1", //"http://192.168.1.20:80/v1/",
+			"/http_api": {
+        target: "http://localhost:6919/v1",
+				// target: "http://7.151.16.99:6919/v1/",
+        // target: process.env.NODE_ENV === 'production' ? '' : '',// "http://localhost:6919/v1", //"http://192.168.1.20:80/v1/",
 				changeOrigin: true,
-				ws: true,
 				pathRewrite: {
-					"^/api": ''
+					'^/http_api': ''
 				}
-			}
+			},
+      "/socket_api": {
+        target: "ws://localhost:6919/v1",
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/socket_api': ''
+        }
+      }
 		}
 	},
 	chainWebpack: (config) => {   
@@ -42,7 +50,7 @@ module.exports = {
 		// 	)
 		// ) 
 		config.plugin("html").tap(args => {
-			args[ 0 ].title = "Jump Trading Monitor"
+			args[0].title = "Jump Trading Monitor"
 			return args
 		})
 		// 添加svg文件      
