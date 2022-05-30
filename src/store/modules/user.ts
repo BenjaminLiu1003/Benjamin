@@ -25,8 +25,10 @@ const user = {
       return new Promise((resolve, reject) => {
         login(username, userInfo.password)
           .then((response) => {
-            commit("SET_USER_ID", response.data.user_id);
-            commit("SET_USER_NAME", response.data.user_name);
+            if (response.data) {
+              commit("SET_USER_ID", response.data.user_id);
+              commit("SET_USER_NAME", response.data.user_name);
+            }
             resolve(response);
           })
           .catch((error) => {

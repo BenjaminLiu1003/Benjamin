@@ -44,7 +44,8 @@ export function request(method, url, info, config) {
         ? info
         : null,
     params: method === "GET" || method === "DELETE1" ? info : null,
-    withCredentials: true
+    withCredentials: true,
+    // headers: {'Content-Type': 'application/json; charset=utf-8'}
   };
 
   config = Object.assign(config0, config);

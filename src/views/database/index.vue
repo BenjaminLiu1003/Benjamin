@@ -7,7 +7,7 @@
              text-color="white"
              @select="handleSelect">
 
-      <el-menu-item index="all"
+      <el-menu-item index="overview"
                     style="background-color: rgba(0, 0, 0, 0.1) !important">
         Overview
       </el-menu-item>
@@ -1016,7 +1016,7 @@ let programs = ref([]); // for show
 let logs = ref([]);
 const activeGroupIdx = ref(null);
 let activePgIdx = ref(null);
-const activeSelection = ref("all");
+const activeSelection = ref("overview");
 let isGrouping = ref(false);
 let settingVisible = ref(false);
 
@@ -1144,30 +1144,41 @@ const handleSelect = (key: string, keyPath: string[]) => {
     onlyShowAlert.value = key == "Alert Only";
     isGrouping.value = false;
     return;
-  }
-
-  if (keyPath[0] == "all") {
-    isGrouping.value = false;
-    socketUrl = "ws:" + location.host + process.env.VUE_APP_SOCKET_API_URL;
-  } else if (keyPath[0] == "host") {
-    isGrouping.value = false;
+  } else if (keyPath[0] == "overview") {
+    filterProgramsViaHostsAndProjects();
+  } else {
     socketUrl =
       "ws:" +
       location.host +
       process.env.VUE_APP_SOCKET_API_URL +
       "?" +
-      JSON.stringify({ hosts: [key] });
-  } else if (keyPath[0] == "project") {
-    isGrouping.value = false;
-    socketUrl =
-      "ws:" +
-      location.host +
-      process.env.VUE_APP_SOCKET_API_URL +
-      "?" +
-      JSON.stringify({ projects: [key] });
+      JSON.stringify({
+        projects: keyPath[0] === "project" ? [key] : [],
+        hosts: keyPath[0] === "host" ? [key] : [],
+      });
+    createNewSocket();
   }
-
-  createNewSocket();
+  isGrouping.value = false;
+  // if (keyPath[0] == "all") {
+  //   isGrouping.value = false;
+  //   socketUrl = "ws:" + location.host + process.env.VUE_APP_SOCKET_API_URL;
+  // } else if (keyPath[0] == "host") {
+  //   isGrouping.value = false;
+  //   socketUrl =
+  //     "ws:" +
+  //     location.host +
+  //     process.env.VUE_APP_SOCKET_API_URL +
+  //     "?" +
+  //     JSON.stringify({ hosts: [key] });
+  // } else if (keyPath[0] == "project") {
+  //   isGrouping.value = false;
+  //   socketUrl =
+  //     "ws:" +
+  //     location.host +
+  //     process.env.VUE_APP_SOCKET_API_URL +
+  //     "?" +
+  //     JSON.stringify({ projects: [key] });
+  // }
 };
 
 const formatLogTitle = (index) => {
@@ -1815,9 +1826,7 @@ const getUserSettings = () => {
             type: "error",
           });
         } else {
-          socketUrl =
-            "ws:" + location.host + process.env.VUE_APP_SOCKET_API_URL;
-          createNewSocket();
+          filterProgramsViaHostsAndProjects();
         }
       },
       () => {
